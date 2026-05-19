@@ -1,13 +1,18 @@
 import { create } from 'zustand'
-import { storage } from '@/utils/storage'
+import { authApi } from '@/api/auth'
 
 export const useAuthStore = create((set) => ({
   user: null,
-  isAuthenticated: !!storage.getToken(),
+  isAuthenticated: false,
 
   setUser: (user) => set({ user, isAuthenticated: true }),
-  clearAuth: () => {
-    storage.clearToken()
-    set({ user: null, isAuthenticated: false })
+  clearAuth: () => set({ user: null, isAuthenticated: false }),
+  checkAuth: async () => {
+    try {
+      const user = await authApi.getMe()
+      set({ user, isAuthenticated: true })
+    } catch {
+      set({ user: null, isAuthenticated: false })
+    }
   },
 }))
