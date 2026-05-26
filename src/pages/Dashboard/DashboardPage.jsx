@@ -13,8 +13,8 @@ const IMG_WARN_DOT    = 'https://www.figma.com/api/mcp/asset/d01da74a-af4e-4595-
 const NAV_ITEMS = [
   { label: '종합', sub: '종합현황', active: true,  route: ROUTES.DASHBOARD },
   { label: '강수', sub: '강수현황', active: false, route: ROUTES.RAINFALL  },
-  { label: '하천', sub: '하천수위', active: false, route: null },
-  { label: '하수', sub: '하수관로', active: false, route: null },
+  { label: '하천', sub: '하천수위', active: false, route: ROUTES.RIVER },
+  { label: '하수', sub: '하수관로', active: false, route: ROUTES.SEWER },
   { label: 'AI',   sub: 'AI분석',   active: false, route: null },
 ]
 

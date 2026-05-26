@@ -4,4 +4,6 @@ export const ROUTES = {
   SIGNUP: '/signup',
   DASHBOARD: '/dashboard',
   RAINFALL: '/rainfall',
+  RIVER: '/river',
+  SEWER: '/sewer',
 }

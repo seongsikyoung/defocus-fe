@@ -5,6 +5,8 @@ import { LoginPage } from '@/pages/Login'
 import { SignupPage } from '@/pages/Signup'
 import { DashboardPage } from '@/pages/Dashboard'
 import { RainfallPage } from '@/pages/Rainfall'
+import { RiverPage } from '@/pages/River'
+import { SewerPage } from '@/pages/Sewer'
 import { NotFoundPage } from '@/pages/NotFound'
 import { ROUTES } from '@/constants/routes'
 
@@ -31,6 +33,14 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.RAINFALL,
     element: <RainfallPage />,
+  },
+  {
+    path: ROUTES.RIVER,
+    element: <RiverPage />,
+  },
+  {
+    path: ROUTES.SEWER,
+    element: <SewerPage />,
   },
   {
     path: '*',
