@@ -11,11 +11,10 @@ const IMG_PEAK_DOT    = 'https://www.figma.com/api/mcp/asset/31df3bb2-beb5-47f5-
 const IMG_WARN_DOT    = 'https://www.figma.com/api/mcp/asset/d01da74a-af4e-4595-a593-1c3ab94a4a7f'
 
 const NAV_ITEMS = [
-  { label: '종합', sub: '종합현황', active: true,  route: ROUTES.DASHBOARD },
-  { label: '강수', sub: '강수현황', active: false, route: ROUTES.RAINFALL  },
-  { label: '하천', sub: '하천수위', active: false, route: ROUTES.RIVER },
-  { label: '하수', sub: '하수관로', active: false, route: ROUTES.SEWER },
-  { label: 'AI',   sub: 'AI분석',   active: false, route: null },
+  { label: '종합', sub: '종합현황',    active: true,  route: ROUTES.DASHBOARD },
+  { label: '강수', sub: '강수현황',    active: false, route: ROUTES.RAINFALL  },
+  { label: '수위', sub: '하천·하수관', active: false, route: ROUTES.RIVER     },
+  { label: 'AI',   sub: 'AI분석',      active: false, route: null             },
 ]
 
 const KPI_CARDS = [
@@ -87,7 +86,7 @@ export function DashboardPage() {
     <div className="flex h-screen flex-col overflow-hidden bg-[#edf0f4]">
 
       {/* ── Header ── */}
-      <header className="grid h-14 shrink-0 grid-cols-[72px_1fr_auto] items-center bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.06)]">
+      <header className="grid h-14 shrink-0 grid-cols-[84px_1fr_auto] items-center bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.06)]">
         <div className="flex items-center justify-center">
           <div className="flex size-[30px] items-center justify-center rounded-full bg-[#3b82f6]">
             <span className="text-sm font-bold text-white">D</span>
@@ -109,7 +108,7 @@ export function DashboardPage() {
       <div className="flex min-h-0 flex-1">
 
         {/* ── Left Nav ── */}
-        <nav className="relative flex w-[72px] shrink-0 flex-col items-center border-r border-[#e2e8f0] bg-white">
+        <nav className="relative flex w-[84px] shrink-0 flex-col items-center border-r border-[#e2e8f0] bg-white">
           <div className="flex w-full flex-col">
             {NAV_ITEMS.map((item) => (
               <div
