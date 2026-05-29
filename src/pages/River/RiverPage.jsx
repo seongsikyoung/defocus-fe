@@ -150,13 +150,19 @@ function RiverGauge({ station }) {
         <Label value={plannedFlood} label="계획홍수위" color="#fe9600" dash={true}  />
         <Label value={riverBed}     label="하상고"    color="#94a3b8" dash={false} />
 
-        {animated && (
-          <g>
-            <line x1={chartL + slopeW + 2} y1={currentY} x2={chartR - slopeW - 2} y2={currentY}
-              stroke={waterColor} strokeWidth={2} opacity={0.95} />
-            <text x={chartR - slopeW + 2} y={currentY + 4} fontSize={8} fill={waterColor} fontWeight="700">현재</text>
-          </g>
-        )}
+        {animated && (() => {
+          // 수위 위치 비율 (0 = 하상고, 1 = 제방고)
+          const frac = Math.min(Math.max((bedY - currentY) / (bedY - bankY), 0), 1)
+          const lx = chartL + slopeW * (1 - frac) + 2
+          const rx = chartR - slopeW * (1 - frac) - 2
+          return (
+            <g>
+              <line x1={lx} y1={currentY} x2={rx} y2={currentY}
+                stroke={waterColor} strokeWidth={2} opacity={0.95} />
+              <text x={rx + 2} y={currentY + 4} fontSize={8} fill={waterColor} fontWeight="700">현재</text>
+            </g>
+          )
+        })()}
         <g>
           {[{ y: bankY, color: '#f34236' }, { y: floodY, color: '#fe9600' }].map(({ y, color }, i) => (
             <circle key={i} cx={chartR + 4} cy={y} r={3} fill={color} opacity={0.8} />
