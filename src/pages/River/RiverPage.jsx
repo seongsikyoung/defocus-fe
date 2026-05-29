@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/constants/routes'
+import { SettingsPanel } from '@/components/SettingsPanel'
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 const MOCK_RIVER_STATIONS = [
@@ -300,7 +301,7 @@ function RiverStationPanel({ station }) {
         <div className="flex items-start justify-between gap-2">
           <div>
             <p className="text-[11px] font-medium text-[#94a3b8]">하천 수위 관측소</p>
-            <h2 className="mt-0.5 text-[17px] font-bold text-[#1e293b]">{station.name}</h2>
+            <h2 className="mt-0.5 text-[17px] font-bold text-[#1e293b] dark:text-[#e2e8f0]">{station.name}</h2>
           </div>
           <span className="shrink-0 rounded-[7px] px-3 py-1.5 text-[12px] font-semibold"
             style={{ background: status.bg, color: status.color }}>
@@ -309,39 +310,42 @@ function RiverStationPanel({ station }) {
         </div>
       </div>
 
-      <div className="mx-5 h-px bg-[#e2e8f0]" />
+      <div className="mx-5 h-px bg-[#e2e8f0] dark:bg-[#2d3f5e]" />
 
       <div className="shrink-0 px-4 py-4">
-        <p className="mb-2 text-[11px] font-semibold text-[#64748b]">하천 수위 단면도</p>
+        <p className="mb-2 text-[11px] font-semibold text-[#64748b] dark:text-[#94a3b8]">하천 수위 단면도</p>
         <RiverGauge station={station} />
       </div>
 
-      <div className="mx-5 h-px bg-[#e2e8f0]" />
+      <div className="mx-5 h-px bg-[#e2e8f0] dark:bg-[#2d3f5e]" />
 
       <div className="shrink-0 px-5 py-4">
-        <p className="mb-3 text-[11px] font-semibold text-[#64748b]">주요 수치 (EL.m)</p>
+        <p className="mb-3 text-[11px] font-semibold text-[#64748b] dark:text-[#94a3b8]">주요 수치 (EL.m)</p>
         <div className="grid grid-cols-2 gap-2">
           {[
             { label: '실시간 수위', value: `${station.current.toFixed(2)} m`,              color: '#3b82f6', highlight: true },
-            { label: '현재 수심',   value: `${depth} m`,                                    color: '#1e293b' },
+            { label: '현재 수심',   value: `${depth} m`,                                    color: '#1e293b', neutral: true },
             { label: '제방고',      value: `${station.embankment.toFixed(1)} m`,             color: '#f34236' },
             { label: '계획홍수위',  value: `${station.plannedFlood.toFixed(1)} m`,            color: '#fe9600' },
             { label: '하상고',      value: `${station.riverBed.toFixed(1)} m`,                color: '#94a3b8' },
             { label: '여유고',      value: `${toFlood > 0 ? '+' : ''}${toFlood} m`,           color: toFlood < 0 ? '#f34236' : '#24c552' },
-          ].map(({ label, value, color, highlight }) => (
+          ].map(({ label, value, color, highlight, neutral }) => (
             <div key={label}
-              className="flex flex-col gap-1 rounded-[8px] border bg-[#f8fafc] px-3 py-2.5"
+              className="flex flex-col gap-1 rounded-[8px] border bg-[#f8fafc] px-3 py-2.5 dark:bg-[#111d35]"
               style={{ borderColor: highlight ? `${color}40` : '#e2e8f0' }}>
               <span className="text-[10px] text-[#94a3b8]">{label}</span>
-              <span className="text-[15px] font-bold" style={{ color }}>{value}</span>
+              {neutral
+                ? <span className="text-[15px] font-bold text-[#1e293b] dark:text-[#e2e8f0]">{value}</span>
+                : <span className="text-[15px] font-bold" style={{ color }}>{value}</span>
+              }
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mx-5 mb-5 rounded-[10px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3">
+      <div className="mx-5 mb-5 rounded-[10px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#111d35]">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-semibold text-[#64748b]">수위 추이</span>
+          <span className="text-[11px] font-semibold text-[#64748b] dark:text-[#94a3b8]">수위 추이</span>
           <span className="text-[13px] font-bold" style={{ color: trendColor }}>
             {trendIcon}&nbsp;{station.trend === 'rising' ? '상승 중' : station.trend === 'falling' ? '하강 중' : '안정'}
           </span>
@@ -370,7 +374,7 @@ function SewerStationPanel({ station }) {
         <div className="flex items-start justify-between gap-2">
           <div>
             <p className="text-[11px] font-medium text-[#94a3b8]">하수관로 관측소</p>
-            <h2 className="mt-0.5 text-[17px] font-bold text-[#1e293b]">{station.name}</h2>
+            <h2 className="mt-0.5 text-[17px] font-bold text-[#1e293b] dark:text-[#e2e8f0]">{station.name}</h2>
             <p className="mt-0.5 text-[11px] text-[#94a3b8]">{station.location}</p>
           </div>
           <span className="shrink-0 rounded-[7px] px-3 py-1.5 text-[12px] font-semibold"
@@ -380,29 +384,32 @@ function SewerStationPanel({ station }) {
         </div>
       </div>
 
-      <div className="mx-5 h-px bg-[#e2e8f0]" />
+      <div className="mx-5 h-px bg-[#e2e8f0] dark:bg-[#2d3f5e]" />
 
       <div className="shrink-0 px-5 py-4">
-        <p className="mb-2 text-[11px] font-semibold text-[#64748b]">관로 충만도 단면</p>
+        <p className="mb-2 text-[11px] font-semibold text-[#64748b] dark:text-[#94a3b8]">관로 충만도 단면</p>
         <PipeGauge station={station} />
       </div>
 
-      <div className="mx-5 h-px bg-[#e2e8f0]" />
+      <div className="mx-5 h-px bg-[#e2e8f0] dark:bg-[#2d3f5e]" />
 
       <div className="shrink-0 px-5 py-4">
-        <p className="mb-3 text-[11px] font-semibold text-[#64748b]">주요 지표</p>
+        <p className="mb-3 text-[11px] font-semibold text-[#64748b] dark:text-[#94a3b8]">주요 지표</p>
         <div className="grid grid-cols-2 gap-2">
           {[
             { label: '충만도',    value: `${(station.fill * 100).toFixed(1)}%`, color: status.color, highlight: true },
-            { label: '관로 직경', value: `${station.diameter} mm`,              color: '#1e293b' },
+            { label: '관로 직경', value: `${station.diameter} mm`,              color: '#1e293b', neutral: true },
             { label: '역류 위험', value: backflow,                              color: backflowColor },
             { label: '기준 상태', value: station.fill >= 0.8 ? '즉시 조치' : station.fill >= 0.5 ? '모니터링' : '이상 없음', color: status.color },
-          ].map(({ label, value, color, highlight }) => (
+          ].map(({ label, value, color, highlight, neutral }) => (
             <div key={label}
-              className="flex flex-col gap-1 rounded-[8px] border bg-[#f8fafc] px-3 py-2.5"
+              className="flex flex-col gap-1 rounded-[8px] border bg-[#f8fafc] px-3 py-2.5 dark:bg-[#111d35]"
               style={{ borderColor: highlight ? `${color}40` : '#e2e8f0' }}>
               <span className="text-[10px] text-[#94a3b8]">{label}</span>
-              <span className="text-[15px] font-bold" style={{ color }}>{value}</span>
+              {neutral
+                ? <span className="text-[15px] font-bold text-[#1e293b] dark:text-[#e2e8f0]">{value}</span>
+                : <span className="text-[15px] font-bold" style={{ color }}>{value}</span>
+              }
             </div>
           ))}
         </div>
@@ -597,9 +604,10 @@ const FILTER_CONFIG = [
 // ── Page ─────────────────────────────────────────────────────────────────────
 export function RiverPage() {
   const navigate = useNavigate()
-  const [selected, setSelected] = useState(null)
-  const [now, setNow]           = useState(new Date())
-  const [filter, setFilter]     = useState({ river: true, sewer: true })
+  const [selected, setSelected]   = useState(null)
+  const [now, setNow]             = useState(new Date())
+  const [filter, setFilter]       = useState({ river: true, sewer: true })
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000)
@@ -619,16 +627,17 @@ export function RiverPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9]">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] dark:bg-[#0f1729]">
+      {settingsOpen && <SettingsPanel onClose={() => setSettingsOpen(false)} />}
 
       {/* Header */}
-      <header className="grid h-14 shrink-0 grid-cols-[84px_1fr_auto] items-center bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.06)]">
+      <header className="grid h-14 shrink-0 grid-cols-[84px_1fr_auto] items-center bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.06)] dark:bg-[#1a2744]">
         <div className="flex items-center justify-center">
           <div className="flex size-[30px] items-center justify-center rounded-full bg-[#3b82f6]">
             <span className="text-sm font-bold text-white">D</span>
           </div>
         </div>
-        <p className="truncate px-2 text-center text-[13px] font-bold text-[#1e293b] sm:text-[15px]">
+        <p className="truncate px-2 text-center text-[13px] font-bold text-[#1e293b] dark:text-[#e2e8f0] sm:text-[15px]">
           실시간 강수 재난안전 통합 모니터링 시스템
         </p>
         <div className="flex items-center gap-2 pr-4 sm:gap-3 sm:pr-5">
@@ -636,38 +645,43 @@ export function RiverPage() {
             <span className="size-[7px] rounded-full bg-[#e53333]" />
             <span className="text-[11px] font-medium text-[#cc1a1a]">경보 {alertCnt}건</span>
           </div>
-          <span className="hidden text-[12px] text-[#64748b] sm:block">{timeStr}</span>
+          <span className="hidden text-[12px] text-[#64748b] dark:text-[#94a3b8] sm:block">{timeStr}</span>
         </div>
       </header>
 
       <div className="flex min-h-0 flex-1">
 
         {/* Left nav */}
-        <nav className="relative flex w-[84px] shrink-0 flex-col items-center border-r border-[#e2e8f0] bg-white">
+        <nav className="relative flex w-[84px] shrink-0 flex-col items-center border-r border-[#e2e8f0] bg-white dark:border-[#2d3f5e] dark:bg-[#1a2744]">
           <div className="flex w-full flex-col">
             {NAV_ITEMS.map(({ label, sub, active, route }) => (
               <div
                 key={label}
                 onClick={() => route && navigate(route)}
                 className={`relative flex w-full flex-col items-center py-3 md:py-4 ${
-                  active ? 'bg-[rgba(185,217,254,0.4)]' : `${route ? 'cursor-pointer hover:bg-[#f1f5f9]' : ''}`
+                  active
+                    ? 'bg-[rgba(185,217,254,0.4)] dark:bg-[rgba(59,130,246,0.2)]'
+                    : `${route ? 'cursor-pointer hover:bg-[#f1f5f9] dark:hover:bg-[#243352]' : ''}`
                 }`}
               >
                 {active && (
                   <div className="absolute left-0 top-1/2 h-11 w-[3px] -translate-y-1/2 rounded-r-[2px] bg-[#3b82f6]" />
                 )}
-                <span className={`text-[13px] md:text-[14px] ${active ? 'font-bold text-[#3b82f6]' : 'font-medium text-[#64748b]'}`}>
+                <span className={`text-[13px] md:text-[14px] ${active ? 'font-bold text-[#3b82f6]' : 'font-medium text-[#64748b] dark:text-[#94a3b8]'}`}>
                   {label}
                 </span>
-                <span className={`text-[9px] md:text-[10px] ${active ? 'text-[#3b82f6]' : 'text-[#64748b]'}`}>
+                <span className={`text-[9px] md:text-[10px] ${active ? 'text-[#3b82f6]' : 'text-[#64748b] dark:text-[#94a3b8]'}`}>
                   {sub}
                 </span>
               </div>
             ))}
           </div>
-          <div className="mt-auto flex w-full cursor-pointer flex-col items-center py-3 hover:bg-[#f1f5f9] md:py-4">
-            <span className="text-[13px] font-medium text-[#64748b] md:text-[14px]">설정</span>
-            <span className="text-[9px] text-[#64748b] md:text-[10px]">설정</span>
+          <div
+            onClick={() => setSettingsOpen(true)}
+            className="mt-auto flex w-full cursor-pointer flex-col items-center py-3 hover:bg-[#f1f5f9] dark:hover:bg-[#243352] md:py-4"
+          >
+            <span className="text-[13px] font-medium text-[#64748b] dark:text-[#94a3b8] md:text-[14px]">설정</span>
+            <span className="text-[9px] text-[#64748b] dark:text-[#94a3b8] md:text-[10px]">설정</span>
           </div>
         </nav>
 
@@ -754,7 +768,7 @@ export function RiverPage() {
 
           {/* Right detail panel */}
           <div
-            className="h-full shrink-0 overflow-hidden border-l border-[#e2e8f0] bg-white transition-all duration-300"
+            className="h-full shrink-0 overflow-hidden border-l border-[#e2e8f0] bg-white transition-all duration-300 dark:border-[#2d3f5e] dark:bg-[#1a2744]"
             style={{ width: selected ? 340 : 0 }}
           >
             {selected && (
@@ -764,18 +778,6 @@ export function RiverPage() {
             )}
           </div>
 
-          {/* Prompt when nothing selected */}
-          {!selected && (
-            <div className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2">
-              <div className="flex flex-col items-center gap-2 rounded-xl border border-[#e2e8f0] bg-white/90 px-5 py-4 shadow-sm backdrop-blur-sm">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M15 10l-4 4m0 0l-4-4m4 4V3M3 17v1a2 2 0 002 2h14a2 2 0 002-2v-1"
-                    stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <p className="text-[12px] text-[#94a3b8]">관측소를 선택하세요</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
