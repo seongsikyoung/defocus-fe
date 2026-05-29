@@ -1,100 +1,89 @@
-import { useEffect, useMemo, useState } from 'react'
+
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/constants/routes'
 import { SettingsPanel } from '@/components/SettingsPanel'
 
-const IMG_AI_DOT   = 'https://www.figma.com/api/mcp/asset/7032a66f-9877-46e7-aff7-405516da4d1f'
+// Assets (Figma MCP, valid 7 days from generation)
+const IMG_HEADER_LOGO = 'https://www.figma.com/api/mcp/asset/161cce9e-acc8-4905-b7d9-c5fe1e5e9af2'
+const IMG_ALERT_DOT = 'https://www.figma.com/api/mcp/asset/81fbf487-3700-4c28-a07b-453bd2281965'
+const IMG_AI_DOT = 'https://www.figma.com/api/mcp/asset/7032a66f-9877-46e7-aff7-405516da4d1f'
 const IMG_LIVE_DOT = 'https://www.figma.com/api/mcp/asset/2a20294d-966d-4e00-9b2a-5eaa3e021b05'
+const IMG_PEAK_DOT = 'https://www.figma.com/api/mcp/asset/31df3bb2-beb5-47f5-98a3-f3f9b49fdc4d'
+const IMG_WARN_DOT = 'https://www.figma.com/api/mcp/asset/d01da74a-af4e-4595-a593-1c3ab94a4a7f'
 
 const NAV_ITEMS = [
-  { label: '종합', sub: '종합현황',    active: true,  route: ROUTES.DASHBOARD },
-  { label: '강수', sub: '강수현황',    active: false, route: ROUTES.RAINFALL  },
-  { label: '수위', sub: '하천·하수관', active: false, route: ROUTES.RIVER     },
-  { label: 'AI',   sub: 'AI분석',      active: false, route: null             },
+  { label: '종합', sub: '종합현황', active: true, route: ROUTES.DASHBOARD },
+  { label: '강수', sub: '강수현황', active: false, route: ROUTES.RAINFALL },
+  { label: '수위', sub: '하천·하수관', active: false, route: ROUTES.RIVER },
+  { label: 'AI', sub: 'AI분석', active: false, route: null },
+]
+
+const KPI_CARDS = [
+  {
+    label: '현재 강수량', badge: '정상', badgeBg: 'rgba(30,135,229,0.15)', badgeText: '#1e87e5',
+    value: '12.4', unit: 'mm/h', valueColor: '#1e87e5', borderColor: 'rgba(30,135,229,0.2)',
+    sub1: 'AWS 89개 관측소 평균', sub2: '+2.1 ↑ (1h 전 대비)', accent: '#1e87e5',
+  },
+  {
+    label: '하천 위험 지점', badge: '주의', badgeBg: 'rgba(254,150,0,0.15)', badgeText: '#fe9600',
+    value: '3', unit: '개소', valueColor: '#fe9600', borderColor: 'rgba(254,150,0,0.2)',
+    sub1: '홍수주의 이상 발령', sub2: '중랑천·탄천·한강 상류', accent: '#fe9600',
+  },
+  {
+    label: '하수관로 이상', badge: '경보', badgeBg: 'rgba(243,66,54,0.15)', badgeText: '#f34236',
+    value: '7', unit: '개소', valueColor: '#f34236', borderColor: 'rgba(243,66,54,0.2)',
+    sub1: '수위 70% 초과', sub2: '강남 4 서초 2 송파 1', accent: '#f34236',
+  },
+  {
+    label: '전체 관측소', badge: '운영 중', badgeBg: 'rgba(36,197,82,0.15)', badgeText: '#24c552',
+    value: '89', unit: '개소', valueColor: '#24c552', borderColor: 'rgba(36,197,82,0.2)',
+    sub1: '정상 79 / 주의 7 / 위험 3', sub2: '14:32 업데이트', accent: '#24c552',
+  },
 ]
 
 const ALERTS = [
-  { type: '홍수 경보', typeBg: 'rgba(243,66,54,0.15)',  typeText: '#f34236', rowBg: 'rgba(243,66,54,0.07)',  time: '14:28', place: '중랑천 상류 망우 관측소' },
-  { type: '홍수 주의', typeBg: 'rgba(254,150,0,0.15)',   typeText: '#fe9600', rowBg: 'rgba(254,150,0,0.07)',  time: '14:15', place: '한강 광진 수위관측소'   },
-  { type: '침수 위험', typeBg: 'rgba(254,150,0,0.15)',   typeText: '#fe9600', rowBg: 'rgba(254,150,0,0.07)',  time: '14:05', place: '강남구 역삼1동 일대'    },
-  { type: '댐 방류',   typeBg: 'rgba(30,135,229,0.15)', typeText: '#1e87e5', rowBg: 'rgba(30,135,229,0.07)', time: '13:50', place: '소양강댐 320 m³/s'      },
+  { type: '홍수 경보', typeBg: 'rgba(243,66,54,0.15)', typeText: '#f34236', rowBg: 'rgba(243,66,54,0.07)', time: '14:28', place: '중랑천 상류 망우 관측소' },
+  { type: '홍수 주의', typeBg: 'rgba(254,150,0,0.15)', typeText: '#fe9600', rowBg: 'rgba(254,150,0,0.07)', time: '14:15', place: '한강 광진 수위관측소' },
+  { type: '침수 위험', typeBg: 'rgba(254,150,0,0.15)', typeText: '#fe9600', rowBg: 'rgba(254,150,0,0.07)', time: '14:05', place: '강남구 역삼1동 일대' },
+  { type: '댐 방류', typeBg: 'rgba(30,135,229,0.15)', typeText: '#1e87e5', rowBg: 'rgba(30,135,229,0.07)', time: '13:50', place: '소양강댐 320 m³/s' },
 ]
 
-function buildPoll(prev) {
-  const rnd  = (v, d)  => Math.max(0, +(v + (Math.random() - 0.5) * d).toFixed(1))
-  const rndI = (v, d)  => Math.max(0, Math.round(v + (Math.random() - 0.5) * d))
-  const avg  = rnd(prev?.avgRainfall ?? 12.4, 2.4)
-  return {
-    avgRainfall: avg,
-    riverDanger: rndI(prev?.riverDanger ?? 3, 1),
-    sewerDanger: rndI(prev?.sewerDanger ?? 7, 2),
-    stations:    { total: 89, normal: 79, caution: 7, danger: 3 },
-    lastPoll:    new Date(),
-    history:     [...(prev?.history ?? [2.1, 5.3, 8.7, 12.4, 9.2]).slice(-5), avg],
-  }
-}
+const DAMS = [
+  { name: '소양강댐', info: '235.4m  |  1,240 ㎥/s', pct: 72, color: '#fe9600' },
+  { name: '충주댐', info: '141.2m  |  520 ㎥/s', pct: 45, color: '#24c552' },
+  { name: '대청댐', info: '72.8m  |  850 ㎥/s', pct: 58, color: '#1e87e5' },
+  { name: '합천댐', info: '168.1m  |  210 ㎥/s', pct: 31, color: '#24c552' },
+]
+
+const SEWERS = [
+  { gu: '강남구', info: '이상 3/12개소', badge: '경보', badgeBg: 'rgba(243,66,54,0.15)', badgeText: '#f34236' },
+  { gu: '서초구', info: '이상 1/9개소', badge: '주의', badgeBg: 'rgba(254,150,0,0.15)', badgeText: '#fe9600' },
+  { gu: '관악구', info: '이상 2/11개소', badge: '경보', badgeBg: 'rgba(243,66,54,0.15)', badgeText: '#f34236' },
+  { gu: '동작구', info: '이상 0/8개소', badge: '정상', badgeBg: 'rgba(36,197,82,0.15)', badgeText: '#24c552' },
+  { gu: '영등포구', info: '이상 1/10개소', badge: '주의', badgeBg: 'rgba(254,150,0,0.15)', badgeText: '#fe9600' },
+]
+
+const CHART_BARS = [
+  { hour: '18시', value: 2.1, h: 20, color: 'rgba(28,101,169,0.65)', active: false },
+  { hour: '19시', value: 5.3, h: 51, color: 'rgba(28,101,169,0.65)', active: false },
+  { hour: '20시', value: 8.7, h: 84, color: 'rgba(28,101,169,0.65)', active: false },
+  { hour: '21시', value: 12.4, h: 120, color: '#1e87e5', active: true },
+  { hour: '22시', value: 9.2, h: 89, color: 'rgba(28,101,169,0.65)', active: false },
+  { hour: '23시', value: 6.8, h: 66, color: 'rgba(28,101,169,0.65)', active: false },
+]
 
 export function DashboardPage() {
   const navigate = useNavigate()
-  const [now, setNow]             = useState(new Date())
+  const [now, setNow] = useState(new Date())
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [poll, setPoll]           = useState(() => buildPoll(null))
 
-  // Clock
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(id)
   }, [])
 
-  // 10분 단위 폴링
-  useEffect(() => {
-    const run = () => setPoll(p => buildPoll(p))
-    const id  = setInterval(run, 10 * 60 * 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  const timeStr   = now.toLocaleTimeString('ko-KR', { hour12: false })
-  const pollTimeStr = poll.lastPoll
-    ? poll.lastPoll.toLocaleTimeString('ko-KR', { hour12: false }).slice(0, 5)
-    : '--:--'
-
-  // 강수량 상태
-  const rainfallStatus = poll.avgRainfall >= 30
-    ? { label: '경보', bg: 'rgba(243,66,54,0.15)',   text: '#f34236', border: 'rgba(243,66,54,0.25)',   accent: '#f34236' }
-    : poll.avgRainfall >= 10
-    ? { label: '주의', bg: 'rgba(254,150,0,0.15)',    text: '#fe9600', border: 'rgba(254,150,0,0.25)',   accent: '#fe9600' }
-    : { label: '정상', bg: 'rgba(30,135,229,0.15)',   text: '#1e87e5', border: 'rgba(30,135,229,0.25)',  accent: '#1e87e5' }
-
-  const riverStatus = poll.riverDanger >= 5
-    ? { label: '경보', bg: 'rgba(243,66,54,0.15)',  text: '#f34236', border: 'rgba(243,66,54,0.25)',  accent: '#f34236' }
-    : poll.riverDanger >= 2
-    ? { label: '주의', bg: 'rgba(254,150,0,0.15)',  text: '#fe9600', border: 'rgba(254,150,0,0.25)',  accent: '#fe9600' }
-    : { label: '정상', bg: 'rgba(36,197,82,0.15)',  text: '#24c552', border: 'rgba(36,197,82,0.25)',  accent: '#24c552' }
-
-  const sewerStatus = poll.sewerDanger >= 8
-    ? { label: '경보', bg: 'rgba(243,66,54,0.15)',  text: '#f34236', border: 'rgba(243,66,54,0.25)',  accent: '#f34236' }
-    : poll.sewerDanger >= 3
-    ? { label: '경보', bg: 'rgba(243,66,54,0.15)',  text: '#f34236', border: 'rgba(243,66,54,0.25)',  accent: '#f34236' }
-    : { label: '정상', bg: 'rgba(36,197,82,0.15)',  text: '#24c552', border: 'rgba(36,197,82,0.25)',  accent: '#24c552' }
-
-  // 차트 바
-  const chartBars = useMemo(() => {
-    const h = now.getHours()
-    const maxH = Math.max(...poll.history, 0.1)
-    return poll.history.map((v, i) => {
-      const hour    = (h - 5 + i + 24) % 24
-      const isLast  = i === poll.history.length - 1
-      return {
-        hour:   `${hour}시`,
-        value:  v.toFixed(1),
-        barH:   Math.round((v / maxH) * 120),
-        active: isLast,
-        color:  isLast ? '#1e87e5' : 'rgba(28,101,169,0.55)',
-      }
-    })
-  }, [poll.history, now])
-
-  const peakVal = Math.max(...poll.history).toFixed(1)
+  const timeStr = now.toLocaleTimeString('ko-KR', { hour12: false })
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#edf0f4] dark:bg-[#0f1729]">
@@ -113,7 +102,7 @@ export function DashboardPage() {
         <div className="flex items-center gap-2 pr-4 sm:gap-3 sm:pr-5">
           <div className="flex items-center gap-1.5 rounded-full border border-[#e53333] bg-[#ffe5e5] px-2.5 py-1 sm:px-3">
             <span className="size-[7px] rounded-full bg-[#e53333]" />
-            <span className="text-[11px] font-medium text-[#cc1a1a]">경보 {ALERTS.length}건</span>
+            <span className="text-[11px] font-medium text-[#cc1a1a]">경보 3건</span>
           </div>
           <span className="hidden text-[12px] text-[#64748b] dark:text-[#94a3b8] sm:block">{timeStr}</span>
         </div>
@@ -129,11 +118,10 @@ export function DashboardPage() {
               <div
                 key={item.label}
                 onClick={() => item.route && navigate(item.route)}
-                className={`relative flex w-full flex-col items-center py-3 md:py-4 ${
-                  item.active
-                    ? 'bg-[rgba(185,217,254,0.4)] dark:bg-[rgba(59,130,246,0.2)]'
-                    : `${item.route ? 'cursor-pointer hover:bg-[#f1f5f9] dark:hover:bg-[#243352]' : ''}`
-                }`}
+                className={`relative flex w-full flex-col items-center py-3 md:py-4 ${item.active
+                  ? 'bg-[rgba(185,217,254,0.4)] dark:bg-[rgba(59,130,246,0.2)]'
+                  : `${item.route ? 'cursor-pointer hover:bg-[#f1f5f9] dark:hover:bg-[#243352]' : ''}`
+                  }`}
               >
                 {item.active && (
                   <div className="absolute left-0 top-1/2 h-11 w-[3px] -translate-y-1/2 rounded-r-[2px] bg-[#3b82f6]" />
@@ -157,184 +145,62 @@ export function DashboardPage() {
         </nav>
 
         {/* ── Content ── */}
-        <main className="flex flex-1 flex-col gap-4 overflow-auto p-4 md:p-5 scrollbar-hide dark:bg-[#0f1729]">
+        <main className="flex flex-1 flex-col gap-4 overflow-auto p-4 md:p-6 scrollbar-hide dark:bg-[#0f1729]">
 
-          {/* ── Row 1: KPI Cards ── */}
-          <div className="shrink-0 grid grid-cols-2 gap-4 xl:grid-cols-4">
-
-            {/* 1. 서울 평균 강수량 */}
-            <div
-              className="animate-slide-up overflow-hidden rounded-xl border bg-white shadow-[0px_4px_16px_0px_rgba(38,64,102,0.1)] dark:bg-[#1e2d45]"
-              style={{ borderColor: rainfallStatus.border, animationDelay: '0ms' }}
-            >
-              <div className="h-[3px]" style={{ background: rainfallStatus.accent }} />
-              <div className="flex flex-col gap-3 p-4 md:p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-[11px] font-medium leading-tight text-[#66809b] dark:text-[#94a3b8] md:text-[12px]">
-                    서울 평균 강수량
-                  </span>
-                  <span className="shrink-0 rounded-[5px] px-2 py-[3px] text-[10px] font-semibold"
-                    style={{ background: rainfallStatus.bg, color: rainfallStatus.text }}>
-                    {rainfallStatus.label}
+          {/* Row 1 – KPI Cards */}
+          <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+            {KPI_CARDS.map((card, i) => (
+              <div
+                key={card.label}
+                className="animate-slide-up flex flex-col gap-2.5 rounded-xl border bg-white p-5 shadow-[0px_2px_12px_0px_rgba(38,64,102,0.1)] dark:bg-[#1e2d45]"
+                style={{ borderColor: card.borderColor, animationDelay: `${i * 80}ms` }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">{card.label}</span>
+                  <span
+                    className="rounded-[5px] px-2 py-[3px] text-[10px] font-semibold"
+                    style={{ background: card.badgeBg, color: card.badgeText }}
+                  >
+                    {card.badge}
                   </span>
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[30px] font-bold leading-none md:text-[34px]"
-                    style={{ color: rainfallStatus.accent }}>
-                    {poll.avgRainfall.toFixed(1)}
+                <div className="flex items-end gap-1">
+                  <span className="text-3xl font-bold leading-none xl:text-[36px]" style={{ color: card.valueColor }}>
+                    {card.value}
                   </span>
-                  <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">mm/h</span>
+                  <span className="mb-1 text-sm text-[#66809b] dark:text-[#94a3b8]">{card.unit}</span>
                 </div>
-                <p className="text-[11px] text-[#97abc1]">AWS 89개 관측소 평균</p>
-                <div className="flex items-center gap-1.5">
-                  <span className="size-[5px] shrink-0 animate-pulse rounded-full"
-                    style={{ background: rainfallStatus.accent }} />
-                  <span className="text-[10px] text-[#97abc1]">10분 단위 · {pollTimeStr}</span>
-                </div>
+                <p className="text-[11px] text-[#97abc1]">{card.sub1}</p>
+                <p className="text-[11px] text-[#97abc1]">{card.sub2}</p>
+                <div className="h-[3px] w-8 rounded-[2px]" style={{ background: card.accent }} />
               </div>
-            </div>
-
-            {/* 2. 하천 위험 지점 */}
-            <div
-              className="animate-slide-up overflow-hidden rounded-xl border bg-white shadow-[0px_4px_16px_0px_rgba(38,64,102,0.1)] dark:bg-[#1e2d45]"
-              style={{ borderColor: riverStatus.border, animationDelay: '80ms' }}
-            >
-              <div className="h-[3px]" style={{ background: riverStatus.accent }} />
-              <div className="flex flex-col gap-3 p-4 md:p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-[11px] font-medium leading-tight text-[#66809b] dark:text-[#94a3b8] md:text-[12px]">
-                    하천 위험 지점
-                  </span>
-                  <span className="shrink-0 rounded-[5px] px-2 py-[3px] text-[10px] font-semibold"
-                    style={{ background: riverStatus.bg, color: riverStatus.text }}>
-                    {riverStatus.label}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[30px] font-bold leading-none md:text-[34px]"
-                    style={{ color: riverStatus.accent }}>
-                    {poll.riverDanger}
-                  </span>
-                  <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">개소</span>
-                </div>
-                <p className="text-[11px] text-[#97abc1]">홍수주의 이상 발령</p>
-                <div className="flex items-center gap-1.5">
-                  <span className="size-[5px] shrink-0 animate-pulse rounded-full"
-                    style={{ background: riverStatus.accent }} />
-                  <span className="text-[10px] text-[#97abc1]">10분 단위 · {pollTimeStr}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. 하수관로 위험 지점 */}
-            <div
-              className="animate-slide-up overflow-hidden rounded-xl border bg-white shadow-[0px_4px_16px_0px_rgba(38,64,102,0.1)] dark:bg-[#1e2d45]"
-              style={{ borderColor: sewerStatus.border, animationDelay: '160ms' }}
-            >
-              <div className="h-[3px]" style={{ background: sewerStatus.accent }} />
-              <div className="flex flex-col gap-3 p-4 md:p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-[11px] font-medium leading-tight text-[#66809b] dark:text-[#94a3b8] md:text-[12px]">
-                    하수관로 위험 지점
-                  </span>
-                  <span className="shrink-0 rounded-[5px] px-2 py-[3px] text-[10px] font-semibold"
-                    style={{ background: sewerStatus.bg, color: sewerStatus.text }}>
-                    {sewerStatus.label}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[30px] font-bold leading-none md:text-[34px]"
-                    style={{ color: sewerStatus.accent }}>
-                    {poll.sewerDanger}
-                  </span>
-                  <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">개소</span>
-                </div>
-                <p className="text-[11px] text-[#97abc1]">수위 70% 초과 관측소</p>
-                <div className="flex items-center gap-1.5">
-                  <span className="size-[5px] shrink-0 animate-pulse rounded-full"
-                    style={{ background: sewerStatus.accent }} />
-                  <span className="text-[10px] text-[#97abc1]">10분 단위 · {pollTimeStr}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. 전체 관측소 */}
-            <div
-              className="animate-slide-up overflow-hidden rounded-xl border bg-white shadow-[0px_4px_16px_0px_rgba(38,64,102,0.1)] dark:bg-[#1e2d45]"
-              style={{ borderColor: 'rgba(36,197,82,0.25)', animationDelay: '240ms' }}
-            >
-              <div className="h-[3px] bg-[#24c552]" />
-              <div className="flex flex-col gap-3 p-4 md:p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-[11px] font-medium leading-tight text-[#66809b] dark:text-[#94a3b8] md:text-[12px]">
-                    전체 관측소
-                  </span>
-                  <span className="shrink-0 rounded-[5px] bg-[rgba(36,197,82,0.15)] px-2 py-[3px] text-[10px] font-semibold text-[#24c552]">
-                    운영 중
-                  </span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[30px] font-bold leading-none text-[#24c552] md:text-[34px]">
-                    {poll.stations.total}
-                  </span>
-                  <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">개소</span>
-                </div>
-                {/* 정상/주의/위험 breakdown */}
-                <div className="flex flex-col gap-1.5">
-                  {[
-                    { label: '정상', count: poll.stations.normal,  color: '#24c552', bg: 'rgba(36,197,82,0.1)',   pct: Math.round(poll.stations.normal  / poll.stations.total * 100) },
-                    { label: '주의', count: poll.stations.caution, color: '#fe9600', bg: 'rgba(254,150,0,0.1)',   pct: Math.round(poll.stations.caution / poll.stations.total * 100) },
-                    { label: '위험', count: poll.stations.danger,  color: '#f34236', bg: 'rgba(243,66,54,0.1)',   pct: Math.round(poll.stations.danger  / poll.stations.total * 100) },
-                  ].map(({ label, count, color, bg, pct }) => (
-                    <div key={label} className="flex items-center gap-2">
-                      <span className="w-6 shrink-0 text-[10px] font-semibold" style={{ color }}>{label}</span>
-                      <div className="h-[5px] flex-1 overflow-hidden rounded-full" style={{ background: bg }}>
-                        <div className="h-full rounded-full transition-all duration-700"
-                          style={{ width: `${pct}%`, background: color }} />
-                      </div>
-                      <span className="w-5 shrink-0 text-right text-[10px] font-bold" style={{ color }}>{count}</span>
-                    </div>
-                  ))}
-                </div>
-                <span className="text-[10px] text-[#97abc1]">{pollTimeStr} 업데이트</span>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* ── Row 2: AI 분석 + 실시간 경보 ── */}
-          <div className="shrink-0 grid grid-cols-1 gap-4 lg:grid-cols-5">
+          {/* Row 2 – AI Card + Alert Card */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
-            {/* 5. AI 현 상황 분석 */}
-            <div
-              className="animate-slide-up flex flex-col gap-3 rounded-xl border border-[rgba(0,184,209,0.2)] bg-white px-6 py-5 shadow-[0px_2px_12px_0px_rgba(38,64,102,0.08)] dark:bg-[#1e2d45] lg:col-span-3"
-              style={{ animationDelay: '320ms' }}
-            >
-              {/* 헤더 */}
+            {/* AI 재난 예측 분석 */}
+            <div className="animate-slide-up flex flex-col gap-3 rounded-xl border border-[rgba(0,184,209,0.2)] bg-white px-6 py-5 shadow-[0px_2px_12px_0px_rgba(38,64,102,0.1)] dark:bg-[#1e2d45]" style={{ animationDelay: '320ms' }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <img src={IMG_AI_DOT} alt="" className="size-[8px]" />
-                  <span className="text-[13px] font-semibold text-[#00b8d1]">AI 현 상황 분석</span>
+                  <span className="text-[13px] font-semibold text-[#00b8d1]">AI 재난 예측 분석</span>
                 </div>
                 <div className="flex items-center gap-1 rounded-[6px] border border-[rgba(219,226,234,0.5)] bg-white px-2.5 py-1 dark:border-[#2d3f5e] dark:bg-[#111d35]">
                   <img src={IMG_LIVE_DOT} alt="" className="size-[6px]" />
-                  <span className="text-[11px] text-[#66809b] dark:text-[#94a3b8]">{pollTimeStr} 분석</span>
+                  <span className="text-[11px] text-[#66809b] dark:text-[#94a3b8]">14:32 분석</span>
                 </div>
               </div>
-
-              {/* 종합 위험도 */}
               <div className="flex items-center justify-between rounded-lg border border-[rgba(243,66,54,0.25)] bg-[rgba(243,66,54,0.08)] px-4 py-2.5">
                 <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">종합 위험도</span>
                 <span className="rounded-[5px] bg-[rgba(243,66,54,0.2)] px-2 py-[3px] text-[10px] font-semibold text-[#f34236]">
                   🔴&nbsp;&nbsp;높음 — Level 3
                 </span>
               </div>
-
-              {/* 상황 설명 */}
               <p className="text-[12px] leading-5 text-[#1b2c42] dark:text-[#c8d6e8]">
-                중랑천 상류(망우 관측소) 수위가 급격히 상승 중이며, 현재 서울 평균 강수량({poll.avgRainfall.toFixed(1)} mm/h) 지속 시 약 1.5시간 내 홍수경보 기준(5.0m) 초과가 예상됩니다. 소양강댐 방류(320 m³/s)로 한강 하류 연쇄 상승이 우려되며, 강남구 역삼·논현동 하수관로 포화 위험이 감지됩니다.
+                중랑천 상류(망우 관측소) 수위가 급격히 상승 중이며, 현재 강수량(12.4 mm/h) 지속 시 약 1.5시간 내 홍수경보 기준(5.0m) 초과가 예상됩니다. 소양강댐 방류(320 m³/s)로 한강 하류 연쇄 상승이 우려되며, 강남구 역삼·논현동 하수관로 포화 위험이 감지됩니다.
               </p>
-
-              {/* 권고 조치 */}
               <p className="text-[11px] font-semibold text-[#66809b] dark:text-[#94a3b8]">권고 조치 사항</p>
               <div className="flex flex-col gap-1.5">
                 {[
@@ -348,139 +214,109 @@ export function DashboardPage() {
                   </div>
                 ))}
               </div>
+              <div className="flex flex-wrap gap-2.5">
+                <button className="rounded-lg bg-[#1e87e5] px-3.5 py-2 text-[11px] font-medium text-white">상세 분석 보고서</button>
+                <button className="rounded-lg border border-[#dbe2ea] bg-white px-3.5 py-2 text-[11px] font-medium text-[#66809b] dark:border-[#2d3f5e] dark:bg-[#111d35] dark:text-[#94a3b8]">대피 경로 지도</button>
+                <button className="rounded-lg border border-[#dbe2ea] bg-white px-3.5 py-2 text-[11px] font-medium text-[#66809b] dark:border-[#2d3f5e] dark:bg-[#111d35] dark:text-[#94a3b8]">기관 공유</button>
+              </div>
             </div>
 
-            {/* 6. 실시간 경보 현황 */}
-            <div
-              className="animate-slide-up flex flex-col gap-2.5 rounded-xl bg-white p-5 shadow-[0px_2px_12px_0px_rgba(38,64,102,0.08)] dark:bg-[#1e2d45] lg:col-span-2"
-              style={{ animationDelay: '400ms' }}
-            >
+            {/* 실시간 경보 현황 */}
+            <div className="animate-slide-up flex flex-col gap-2.5 rounded-xl bg-white p-5 shadow-[0px_2px_12px_0px_rgba(38,64,102,0.1)] dark:bg-[#1e2d45]" style={{ animationDelay: '400ms' }}>
               <div className="flex items-center justify-between">
                 <span className="text-[13px] font-semibold text-[#1b2c42] dark:text-[#e2e8f0]">실시간 경보 현황</span>
-                <span className="rounded-[5px] bg-[rgba(243,66,54,0.15)] px-2 py-[3px] text-[10px] font-semibold text-[#f34236]">
-                  경보 {ALERTS.length}건
-                </span>
+                <span className="rounded-[5px] bg-[rgba(243,66,54,0.15)] px-2 py-[3px] text-[10px] font-semibold text-[#f34236]">경보 3건</span>
               </div>
-              <div className="flex flex-col gap-2">
-                {ALERTS.map((a, i) => (
-                  <div key={i} className="flex flex-col gap-1 rounded-lg px-3 py-2.5" style={{ background: a.rowBg }}>
-                    <div className="flex items-center justify-between">
-                      <span className="rounded-[5px] px-2 py-[3px] text-[10px] font-semibold"
-                        style={{ background: a.typeBg, color: a.typeText }}>
-                        {a.type}
-                      </span>
-                      <span className="text-[10px] text-[#97abc1]">{a.time}</span>
-                    </div>
-                    <p className="text-[11px] font-medium text-[#1b2c42] dark:text-[#e2e8f0]">{a.place}</p>
+              {ALERTS.map((a, i) => (
+                <div key={i} className="flex flex-col gap-1 rounded-lg px-3 py-2.5" style={{ background: a.rowBg }}>
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-[5px] px-2 py-[3px] text-[10px] font-semibold" style={{ background: a.typeBg, color: a.typeText }}>
+                      {a.type}
+                    </span>
+                    <span className="text-[10px] text-[#97abc1]">{a.time}</span>
+                  </div>
+                  <p className="text-[11px] font-medium text-[#1b2c42] dark:text-[#e2e8f0]">{a.place}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 3 – Dam + Sewer + Chart */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+            {/* 댐 방류 현황 */}
+            <div className="animate-slide-up flex flex-col gap-3 rounded-xl border border-[#dbe2ea] bg-white p-5 shadow-[0px_2px_12px_0px_rgba(38,64,102,0.1)] dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '480ms' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-[15px] font-semibold text-[#1b2c42] dark:text-[#e2e8f0]">댐 방류 현황</span>
+                <span className="rounded-[10px] bg-[rgba(254,150,0,0.2)] px-2.5 py-[3px] text-[11px] font-medium text-[#fe9600]">방류중</span>
+              </div>
+              {DAMS.map((dam) => (
+                <div key={dam.name} className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[13px] font-medium text-[#1b2c42] dark:text-[#e2e8f0]">{dam.name}</span>
+                    <span className="text-[12px] text-[#66809b] dark:text-[#94a3b8]">{dam.info}</span>
+                  </div>
+                  <div className="relative h-2 w-full rounded-full bg-[#dbe2ea] dark:bg-[#2d3f5e]">
+                    <div
+                      className="absolute left-0 top-0 h-2 rounded-full"
+                      style={{ width: `${dam.pct}%`, background: dam.color }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 하수관로 수위 현황 */}
+            <div className="animate-slide-up flex flex-col gap-2.5 rounded-xl border border-[#dbe2ea] bg-white p-5 shadow-[0px_2px_12px_0px_rgba(38,64,102,0.1)] dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '560ms' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-[15px] font-semibold text-[#1b2c42] dark:text-[#e2e8f0]">하수관로 수위 현황</span>
+                <span className="text-[12px] text-[#66809b] dark:text-[#94a3b8]">구별</span>
+              </div>
+              <div className="h-px bg-[#dbe2ea] dark:bg-[#2d3f5e]" />
+              {SEWERS.map((s) => (
+                <div key={s.gu} className="flex h-9 items-center justify-between rounded-[6px] bg-[#eef1f4] px-3 dark:bg-[#111d35]">
+                  <span className="flex-1 text-[13px] font-medium text-[#1b2c42] dark:text-[#e2e8f0]">{s.gu}</span>
+                  <span className="text-[12px] text-[#66809b] dark:text-[#94a3b8]">{s.info}</span>
+                  <div className="ml-2 flex h-5 w-11 items-center justify-center rounded" style={{ background: s.badgeBg }}>
+                    <span className="text-[11px] font-semibold" style={{ color: s.badgeText }}>{s.badge}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 시간별 강수량 추이 */}
+            <div className="animate-slide-up flex flex-col gap-3.5 rounded-xl border border-[#dbe2ea] bg-white p-5 shadow-[0px_2px_12px_0px_rgba(38,64,102,0.1)] dark:border-[#2d3f5e] dark:bg-[#1e2d45] md:col-span-2 lg:col-span-1" style={{ animationDelay: '640ms' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-[15px] font-semibold text-[#1b2c42] dark:text-[#e2e8f0]">시간별 강수량 추이</span>
+                <span className="text-[12px] text-[#66809b] dark:text-[#94a3b8]">최근 6시간 (mm/h)</span>
+              </div>
+              <div className="flex h-[180px] items-end justify-between rounded-lg bg-[#eef1f4] px-4 py-3 dark:bg-[#111d35]">
+                {CHART_BARS.map((bar) => (
+                  <div key={bar.hour} className="flex h-full w-9 flex-col items-center justify-end gap-1">
+                    <span className={`text-[11px] font-medium ${bar.active ? 'text-[#1b2c42] dark:text-[#e2e8f0]' : 'text-[#66809b] dark:text-[#94a3b8]'}`}>
+                      {bar.value}
+                    </span>
+                    <div
+                      className="w-6 rounded"
+                      style={{ height: bar.h, background: bar.color }}
+                    />
+                    <span className="text-[10px] text-[#97abc1]">{bar.hour}</span>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* ── Row 3: 시간별 서울 평균 강수량 차트 ── */}
-          <div
-            className="shrink-0 animate-slide-up rounded-xl border border-[#dbe2ea] bg-white px-5 pb-5 pt-4 shadow-[0px_4px_16px_0px_rgba(38,64,102,0.1)] dark:border-[#2d3f5e] dark:bg-[#1e2d45]"
-            style={{ animationDelay: '480ms' }}
-          >
-            {/* 헤더 */}
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[14px] font-semibold text-[#1b2c42] dark:text-[#e2e8f0]">시간별 서울 평균 강수량</span>
-                <span className="rounded-[5px] bg-[rgba(30,135,229,0.12)] px-2 py-[3px] text-[10px] font-semibold text-[#1e87e5]">
-                  최근 6시간
-                </span>
-              </div>
-              <span className="hidden text-[11px] text-[#97abc1] sm:block">
-                AWS 89개소 · {pollTimeStr} 업데이트
-              </span>
-            </div>
-
-            {/* 차트 영역 */}
-            <div className="relative h-[180px] overflow-hidden rounded-xl bg-[#f0f4f8] dark:bg-[#0d1b2e]">
-
-              {/* 수평 격자선 */}
-              {[0.25, 0.5, 0.75].map((f) => (
-                <div
-                  key={f}
-                  className="absolute inset-x-0 border-t border-[#e2e8f0] dark:border-[#1e3050]"
-                  style={{ top: `${f * 100}%` }}
-                />
-              ))}
-
-              {/* 경보 기준선 (10 mm/h) */}
-              {parseFloat(peakVal) > 0 && (
-                <div
-                  className="absolute inset-x-0 z-10 flex items-center gap-2 px-3"
-                  style={{ bottom: `${Math.min((10 / parseFloat(peakVal)) * 82, 98)}%` }}
-                >
-                  <div className="flex-1 border-t-[1.5px] border-dashed border-[#fe9600]/60" />
-                  <span className="shrink-0 rounded-[3px] bg-[#fe9600]/10 px-1.5 py-[1px] text-[9px] font-bold text-[#fe9600]">
-                    10 mm/h
-                  </span>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <img src={IMG_PEAK_DOT} alt="" className="size-[8px]" />
+                  <span className="text-[11px] text-[#66809b] dark:text-[#94a3b8]">피크 (12.4 mm/h)</span>
                 </div>
-              )}
-
-              {/* 막대 + 값 레이블 */}
-              <div className="absolute bottom-8 left-0 right-0 top-0 flex items-end justify-around px-5">
-                {chartBars.map((bar) => {
-                  const maxV = parseFloat(peakVal) || 1
-                  const pct  = Math.min((parseFloat(bar.value) / maxV) * 82, 98)
-                  return (
-                    <div key={bar.hour} className="flex flex-col items-center justify-end gap-1.5" style={{ height: '100%', width: `${100 / chartBars.length}%` }}>
-                      {/* 값 레이블 */}
-                      <span className={`text-[10px] font-bold transition-colors ${bar.active ? 'text-[#1e87e5]' : 'text-[#94a3b8]'}`}>
-                        {bar.value}
-                      </span>
-                      {/* 막대 */}
-                      <div
-                        className="w-[28px] rounded-t-[5px] transition-all duration-500"
-                        style={{
-                          height: `${pct}%`,
-                          minHeight: '4px',
-                          background: bar.active
-                            ? 'linear-gradient(to top, #1d6fb5 0%, #3b9fe8 100%)'
-                            : 'linear-gradient(to top, rgba(30,110,175,0.55) 0%, rgba(59,159,232,0.25) 100%)',
-                          boxShadow: bar.active ? '0 0 10px rgba(59,159,232,0.4)' : 'none',
-                        }}
-                      />
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* X축 레이블 */}
-              <div className="absolute bottom-0 left-0 right-0 flex h-8 items-center justify-around border-t border-[#e2e8f0] bg-white/60 px-5 backdrop-blur-sm dark:border-[#1e3050] dark:bg-[#0d1b2e]/60">
-                {chartBars.map((bar) => (
-                  <span
-                    key={bar.hour}
-                    className={`text-center text-[10px] transition-colors ${bar.active ? 'font-bold text-[#1e87e5]' : 'text-[#94a3b8]'}`}
-                    style={{ width: `${100 / chartBars.length}%` }}
-                  >
-                    {bar.hour}
-                  </span>
-                ))}
+                <div className="flex items-center gap-1.5">
+                  <img src={IMG_WARN_DOT} alt="" className="size-[8px]" />
+                  <span className="text-[11px] text-[#66809b] dark:text-[#94a3b8]">경보 기준 (10.0 mm/h)</span>
+                </div>
               </div>
             </div>
 
-            {/* 범례 */}
-            <div className="mt-3 flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-[2px]"
-                  style={{ background: 'linear-gradient(to top, #1d6fb5, #3b9fe8)' }} />
-                <span className="text-[11px] text-[#66809b] dark:text-[#94a3b8]">피크 {peakVal} mm/h</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-5 border-t-[1.5px] border-dashed border-[#fe9600]/70" />
-                <span className="text-[11px] text-[#66809b] dark:text-[#94a3b8]">경보 기준 10.0 mm/h</span>
-              </div>
-              <div className="ml-auto flex items-center gap-1.5">
-                <span className="size-[5px] animate-pulse rounded-full bg-[#1e87e5]" />
-                <span className="text-[11px] text-[#97abc1]">10분 단위 갱신 · {pollTimeStr}</span>
-              </div>
-            </div>
           </div>
-
         </main>
       </div>
     </div>
