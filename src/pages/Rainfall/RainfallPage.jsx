@@ -34,7 +34,6 @@ const NAV_ITEMS = [
   { label: '종합', sub: '종합현황',    active: false, route: ROUTES.DASHBOARD },
   { label: '강수', sub: '강수현황',    active: true,  route: ROUTES.RAINFALL  },
   { label: '수위', sub: '하천·하수관', active: false, route: ROUTES.RIVER     },
-  { label: 'AI',   sub: 'AI분석',      active: false, route: null             },
 ]
 
 const ALERTS = [
