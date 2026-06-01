@@ -52,7 +52,7 @@ export function DashboardLayout({
 
         {/* ── Left Nav ── */}
         <nav className="relative flex w-[84px] shrink-0 flex-col items-center border-r border-[#e2e8f0] bg-white dark:border-[#2d3f5e] dark:bg-[#1a2744]">
-          <div className="flex w-full flex-col">
+          <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto">
             {NAV_ITEMS.map((item) => {
               const active = item.route === activeRoute
               return (
@@ -80,7 +80,7 @@ export function DashboardLayout({
           </div>
           <div
             onClick={() => setSettingsOpen(true)}
-            className="mt-auto flex w-full cursor-pointer flex-col items-center py-3 hover:bg-[#f1f5f9] dark:hover:bg-[#243352] md:py-4"
+            className="shrink-0 flex w-full cursor-pointer flex-col items-center border-t border-[#e2e8f0] py-3 hover:bg-[#f1f5f9] dark:border-[#2d3f5e] dark:hover:bg-[#243352] md:py-4"
           >
             <span className="text-[13px] font-medium text-[#64748b] dark:text-[#94a3b8] md:text-[14px]">설정</span>
             <span className="text-[8px] text-[#64748b] dark:text-[#94a3b8] md:text-[9px]">설정</span>
