@@ -9,13 +9,13 @@ export const MOCK_RIVER_STATIONS = [
 ]
 
 export const MOCK_SEWER_STATIONS = [
-  { id: 's1', type: 'sewer', name: '강남구 역삼동',   lat: 37.4994, lng: 127.0349, fill: 0.87, diameter: 800, location: '역삼로 37길'   },
-  { id: 's2', type: 'sewer', name: '서초구 반포동',   lat: 37.5037, lng: 126.9988, fill: 0.65, diameter: 600, location: '반포대로 55'   },
-  { id: 's3', type: 'sewer', name: '관악구 신림동',   lat: 37.4843, lng: 126.9294, fill: 0.92, diameter: 500, location: '신림로 23'     },
-  { id: 's4', type: 'sewer', name: '동작구 노량진',   lat: 37.5149, lng: 126.9396, fill: 0.38, diameter: 700, location: '노량진로 48'   },
-  { id: 's5', type: 'sewer', name: '영등포구 여의도', lat: 37.5219, lng: 126.9245, fill: 0.73, diameter: 900, location: '여의도동 35-1' },
-  { id: 's6', type: 'sewer', name: '마포구 합정동',   lat: 37.5498, lng: 126.9139, fill: 0.45, diameter: 450, location: '합정로 22'     },
-  { id: 's7', type: 'sewer', name: '성동구 성수동',   lat: 37.5443, lng: 127.0557, fill: 1.0,  diameter: 600, location: '성수이로 5'    },
+  { id: 's1', type: 'sewer', name: '강남구 역삼동',   lat: 37.4994, lng: 127.0349, fill: 0.87, diameter: 800, location: '역삼로 37길',   observedAt: '2026-06-05T14:10:00' },
+  { id: 's2', type: 'sewer', name: '서초구 반포동',   lat: 37.5037, lng: 126.9988, fill: 0.65, diameter: 600, location: '반포대로 55',   observedAt: '2026-06-05T14:10:00' },
+  { id: 's3', type: 'sewer', name: '관악구 신림동',   lat: 37.4843, lng: 126.9294, fill: 0.92, diameter: 500, location: '신림로 23',     observedAt: '2026-06-05T14:10:00' },
+  { id: 's4', type: 'sewer', name: '동작구 노량진',   lat: 37.5149, lng: 126.9396, fill: 0.38, diameter: 700, location: '노량진로 48',   observedAt: '2026-06-05T14:10:00' },
+  { id: 's5', type: 'sewer', name: '영등포구 여의도', lat: 37.5219, lng: 126.9245, fill: 0.73, diameter: 900, location: '여의도동 35-1', observedAt: '2026-06-05T14:10:00' },
+  { id: 's6', type: 'sewer', name: '마포구 합정동',   lat: 37.5498, lng: 126.9139, fill: 0.45, diameter: 450, location: '합정로 22',     observedAt: '2026-06-05T14:10:00' },
+  { id: 's7', type: 'sewer', name: '성동구 성수동',   lat: 37.5443, lng: 127.0557, fill: 1.0,  diameter: 600, location: '성수이로 5',    observedAt: '2026-06-05T14:10:00' },
 ]
 
 export const ALL_STATIONS = [...MOCK_RIVER_STATIONS, ...MOCK_SEWER_STATIONS]

@@ -6,7 +6,6 @@ import { getRainfallLevel } from '@/utils/statusUtils'
 import {
   MOCK_RAINFALL,
   RAINFALL_LEGEND,
-  RAINFALL_ALERTS,
   toDatetimeLocal,
   fmtDateTime,
   buildMockSteps,
@@ -151,7 +150,7 @@ export function RainfallPage() {
           <div className="flex h-[360px] flex-col overflow-hidden rounded-[10px] border border-[#e2e8f0] bg-white md:h-[440px] lg:h-auto lg:min-h-0 lg:flex-1 dark:border-[#2d3f5e] dark:bg-[#1e2d45]">
             <div className="flex h-12 shrink-0 items-center px-4">
               <span className="text-[14px] font-semibold text-[#1e293b] dark:text-[#e2e8f0] md:text-[15px]">서울시 구별 강수량 현황</span>
-              <span className="ml-2 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">단위: mm/hr</span>
+              <span className="ml-2 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">단위: mm/10min</span>
               {isPlaying && (
                 <span className="ml-auto flex items-center gap-1.5 text-[11px] font-semibold text-[#6366f1]">
                   <span className="size-[6px] animate-pulse rounded-full bg-[#6366f1]" />
@@ -198,55 +197,42 @@ export function RainfallPage() {
 
           {/* Right Panel */}
           <div className="flex flex-col gap-2 md:gap-2.5 lg:w-[340px] lg:shrink-0 lg:overflow-y-auto scrollbar-hide">
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 md:gap-2.5 lg:grid-cols-1">
 
-              <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '100ms' }}>
-                <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">서울시 평균 강수량</p>
-                <div className="mt-1 flex items-end justify-between gap-2">
-                  <div className="flex items-end gap-1.5">
-                    <span className="text-[20px] font-bold text-[#3b82f6] md:text-[22px]">{avgRain}</span>
-                    <span className="mb-0.5 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">mm/hr</span>
-                  </div>
-                  <span className="shrink-0 text-[10px] text-[#64748b] dark:text-[#94a3b8] md:text-[11px]">▲ 3.2 전시간 대비</span>
-                </div>
+            <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '100ms' }}>
+              <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">서울시 평균 강수량</p>
+              <div className="mt-1 flex items-end gap-1.5">
+                <span className="text-[20px] font-bold text-[#3b82f6] md:text-[22px]">{avgRain}</span>
+                <span className="mb-0.5 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">mm/10min</span>
               </div>
+            </div>
 
-              <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '200ms' }}>
-                <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">최고 강수량 지역</p>
-                <div className="mt-1 flex items-end justify-between gap-2">
-                  <div className="flex items-end gap-1.5">
-                    <span className="text-[20px] font-bold text-[#ed8936] md:text-[22px]">{maxRain.toFixed(1)}</span>
-                    <span className="mb-0.5 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">mm/hr ({maxDistrict})</span>
-                  </div>
-                  <span className="shrink-0 text-[10px] text-[#64748b] dark:text-[#94a3b8] md:text-[11px]">⚠ {getRainfallLevel(maxRain).label} 단계</span>
+            <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '200ms' }}>
+              <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">최고 강수량 지역</p>
+              <div className="mt-1 flex items-end justify-between gap-2">
+                <div className="flex items-end gap-1.5">
+                  <span className="text-[20px] font-bold text-[#ed8936] md:text-[22px]">{maxRain.toFixed(1)}</span>
+                  <span className="mb-0.5 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">mm/10min</span>
                 </div>
+                <span className="shrink-0 text-[10px] text-[#64748b] dark:text-[#94a3b8] md:text-[11px]">⚠ {getRainfallLevel(maxRain).label} 단계</span>
               </div>
-
-              <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '300ms' }}>
-                <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">경보 발령 구</p>
-                <div className="mt-1 flex items-end justify-between gap-2">
-                  <div className="flex items-end gap-1.5">
-                    <span className="text-[20px] font-bold text-[#e53e3e] md:text-[22px]">{alertCount}</span>
-                    <span className="mb-0.5 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">개구</span>
-                  </div>
-                  <span className="shrink-0 text-[10px] text-[#64748b] dark:text-[#94a3b8] md:text-[11px]">
-                    {alertDistricts.map(([k]) => k.replace('구', '')).join('/')}
-                  </span>
-                </div>
+              <div className="mt-2">
+                <span className="inline-block rounded-[5px] bg-[#fff3e0] px-2.5 py-0.5 text-[12px] font-semibold text-[#c05621] dark:bg-[#3d1f06] dark:text-[#fb923c]">
+                  {maxDistrict}
+                </span>
               </div>
             </div>
 
             {/* District Ranking */}
-            <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white p-3 md:p-4 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '400ms' }}>
+            <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white p-3 md:p-4 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '300ms' }}>
               <p className="mb-2 text-[12px] font-semibold text-[#1e293b] dark:text-[#e2e8f0] md:text-[13px]">구별 강수량 순위 (Top 7)</p>
               <div className="flex flex-col gap-0.5">
                 {top7.map(([district, rain], i) => {
                   const level = getRainfallLevel(rain)
                   return (
                     <div key={district} className={`flex items-center rounded-[4px] px-2 py-1.5 md:py-2 ${i % 2 !== 0 ? 'bg-[#f9fbfe] dark:bg-[#111d35]' : ''}`}>
-                      <span className="w-5 text-[12px] font-bold text-[#64748b] dark:text-[#94a3b8] md:w-6 md:text-[13px]">{i + 1}</span>
+                      <span className="w-5 text-[12px] font-bold text-[#1e293b] dark:text-white md:w-6 md:text-[13px]">{i + 1}</span>
                       <span className="w-16 text-[12px] font-medium text-[#1e293b] dark:text-[#e2e8f0] md:w-[72px] md:text-[13px]">{district}</span>
-                      <span className="flex-1 text-[12px] font-medium md:text-[13px]" style={{ color: level.badgeText }}>{rain.toFixed(1)} mm/hr</span>
+                      <span className="flex-1 text-[12px] font-medium text-[#1e293b] dark:text-white md:text-[13px]">{rain.toFixed(1)} mm/10min</span>
                       <span className="rounded-[4px] px-1.5 py-0.5 text-[10px] font-medium md:px-2 md:text-[11px]" style={{ background: level.badgeBg, color: level.badgeText }}>
                         {level.label}
                       </span>
@@ -256,23 +242,19 @@ export function RainfallPage() {
               </div>
             </div>
 
-            {/* Alert Panel */}
-            <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white p-3 md:p-4 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '500ms' }}>
-              <p className="mb-2.5 text-[12px] font-semibold text-[#e53e3e] md:mb-3 md:text-[13px]">⚠&nbsp;&nbsp;경보 현황</p>
-              <div className="flex flex-col gap-2">
-                {RAINFALL_ALERTS.map((alert, i) => (
-                  <div key={i} className="rounded-[6px] px-3 py-2" style={{ background: alert.severe ? '#fff0f0' : '#fff7e5' }}>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[12px] font-semibold md:text-[13px]" style={{ color: alert.severe ? '#b81515' : '#8c520a' }}>
-                        {alert.district}&nbsp;&nbsp;{alert.type}
-                      </span>
-                      <span className="shrink-0 text-[10px] text-[#64748b] md:text-[11px]">{alert.time}</span>
-                    </div>
-                    <p className="mt-1 text-[10px] text-[#1e293b] md:text-[11px]">{alert.desc}</p>
-                  </div>
-                ))}
+            <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '400ms' }}>
+              <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">경보 발령 구</p>
+              <div className="mt-1 flex items-end justify-between gap-2">
+                <div className="flex items-end gap-1.5">
+                  <span className="text-[20px] font-bold text-[#e53e3e] md:text-[22px]">{alertCount}</span>
+                  <span className="mb-0.5 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">개구</span>
+                </div>
+                <span className="shrink-0 text-[10px] text-[#64748b] dark:text-[#94a3b8] md:text-[11px]">
+                  {alertDistricts.map(([k]) => k.replace('구', '')).join('/')}
+                </span>
               </div>
             </div>
+
           </div>
         </div>
       </main>
