@@ -1,6 +1,4 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { RootLayout } from '@/components/layout/RootLayout'
-import { HomePage } from '@/pages/Home'
 import { LoginPage } from '@/pages/Login'
 import { SignupPage } from '@/pages/Signup'
 import { DashboardPage } from '@/pages/Dashboard'
@@ -9,14 +7,12 @@ import { RiverPage } from '@/pages/River'
 import { SewerPage } from '@/pages/Sewer'
 import { NotFoundPage } from '@/pages/NotFound'
 import { ROUTES } from '@/constants/routes'
+import { RootRedirect } from './RootRedirect'
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <RootLayout />,
-    children: [
-      { index: true, element: <HomePage /> },
-    ],
+    element: <RootRedirect />,
   },
   {
     path: ROUTES.LOGIN,
