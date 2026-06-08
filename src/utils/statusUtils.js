@@ -1,9 +1,23 @@
+// Thresholds match backend RainfallStatus.from() — unit: mm/10min
 export function getRainfallLevel(mm) {
-  if (mm >= 50) return { label: '위험', mapColor: '#1e3a8a', textColor: '#ffffff', badgeBg: '#1e3a8a', badgeText: '#ffffff' }
-  if (mm >= 30) return { label: '경계', mapColor: '#2563eb', textColor: '#ffffff', badgeBg: '#3b82f6', badgeText: '#ffffff' }
-  if (mm >= 20) return { label: '주의', mapColor: '#60a5fa', textColor: '#1e293b', badgeBg: '#93c5fd', badgeText: '#1e40af' }
-  if (mm >= 10) return { label: '관심', mapColor: '#93c5fd', textColor: '#1e293b', badgeBg: '#bfdbfe', badgeText: '#1e40af' }
+  if (mm >= 8.3) return { label: '위험', mapColor: '#1e3a8a', textColor: '#ffffff', badgeBg: '#1e3a8a', badgeText: '#ffffff' }
+  if (mm >= 5.0) return { label: '경계', mapColor: '#2563eb', textColor: '#ffffff', badgeBg: '#3b82f6', badgeText: '#ffffff' }
+  if (mm >= 2.5) return { label: '주의', mapColor: '#60a5fa', textColor: '#1e293b', badgeBg: '#93c5fd', badgeText: '#1e40af' }
+  if (mm >= 0.5) return { label: '관심', mapColor: '#93c5fd', textColor: '#1e293b', badgeBg: '#bfdbfe', badgeText: '#1e40af' }
   return           { label: '정상', mapColor: '#dbeafe', textColor: '#1e293b', badgeBg: '#dbeafe', badgeText: '#1d4ed8' }
+}
+
+// Use this when the RainfallStatus enum value is already available from the API
+const RAINFALL_STATUS_LEVELS = {
+  DANGER:   { label: '위험', mapColor: '#1e3a8a', textColor: '#ffffff', badgeBg: '#1e3a8a', badgeText: '#ffffff' },
+  WARNING:  { label: '경계', mapColor: '#2563eb', textColor: '#ffffff', badgeBg: '#3b82f6', badgeText: '#ffffff' },
+  CAUTION:  { label: '주의', mapColor: '#60a5fa', textColor: '#1e293b', badgeBg: '#93c5fd', badgeText: '#1e40af' },
+  INTEREST: { label: '관심', mapColor: '#93c5fd', textColor: '#1e293b', badgeBg: '#bfdbfe', badgeText: '#1e40af' },
+  NORMAL:   { label: '정상', mapColor: '#dbeafe', textColor: '#1e293b', badgeBg: '#dbeafe', badgeText: '#1d4ed8' },
+}
+
+export function getRainfallLevelByStatus(status) {
+  return RAINFALL_STATUS_LEVELS[status] ?? RAINFALL_STATUS_LEVELS.NORMAL
 }
 
 export function getRiverStatus(s) {

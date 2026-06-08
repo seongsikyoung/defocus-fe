@@ -10,8 +10,8 @@ export const useAuthStore = create((set) => ({
   clearAuth: () => set({ user: null, isAuthenticated: false }),
   checkAuth: async () => {
     try {
-      const user = await authApi.getMe()
-      set({ user, isAuthenticated: true, isLoading: false })
+      const res = await authApi.getMe()
+      set({ user: res.data, isAuthenticated: true, isLoading: false })
     } catch {
       set({ user: null, isAuthenticated: false, isLoading: false })
     }

@@ -9,9 +9,9 @@ export function useAuth() {
   useQuery({
     queryKey: QUERY_KEYS.AUTH.ME,
     queryFn: async () => {
-      const data = await authApi.getMe()
-      setUser(data)
-      return data
+      const res = await authApi.getMe()
+      setUser(res.data)
+      return res.data
     },
     enabled: isAuthenticated && !user,
     retry: false,

@@ -11,21 +11,22 @@ export function SeoulMap({ rainfallData }) {
 
   const dataRef        = useRef(rainfallData)
   const initializedRef = useRef(false)
-  const skipFirstRef   = useRef(true)
 
   useEffect(() => { dataRef.current = rainfallData }, [rainfallData])
 
   // Full draw — mount + resize only
   useEffect(() => {
+    let rafId
+
     const draw = () => {
       if (!svgRef.current || !containerRef.current) return
+      const { width, height } = containerRef.current.getBoundingClientRect()
+      // Dimension check BEFORE touching refs — failed draws must not corrupt state
+      if (!width || !height) return
+
       const svg = d3.select(svgRef.current)
       svg.selectAll('*').remove()
       initializedRef.current = false
-      skipFirstRef.current   = true
-
-      const { width, height } = containerRef.current.getBoundingClientRect()
-      if (!width || !height) return
 
       const snap       = dataRef.current
       const projection = d3.geoMercator().fitSize([width, height], geoData)
@@ -109,15 +110,27 @@ export function SeoulMap({ rainfallData }) {
       initializedRef.current = true
     }
 
-    draw()
+    // RAF retry: keep retrying until the container has layout dimensions.
+    // This handles cases where CSS layout isn't complete at effect time.
+    const tryDraw = () => {
+      if (!containerRef.current) return
+      const { width, height } = containerRef.current.getBoundingClientRect()
+      if (!width || !height) {
+        rafId = requestAnimationFrame(tryDraw)
+      } else {
+        draw()
+      }
+    }
+
+    rafId = requestAnimationFrame(tryDraw)
     const ro = new ResizeObserver(draw)
     if (containerRef.current) ro.observe(containerRef.current)
-    return () => ro.disconnect()
+    return () => { cancelAnimationFrame(rafId); ro.disconnect() }
   }, [])
 
-  // Quick color+value update — no redraw
+  // Color + value update on every rainfallData change.
+  // No skipFirstRef: removed to prevent missed updates during period playback.
   useEffect(() => {
-    if (skipFirstRef.current) { skipFirstRef.current = false; return }
     if (!initializedRef.current || !svgRef.current) return
     const svg = d3.select(svgRef.current)
     svg.selectAll('.districts path')

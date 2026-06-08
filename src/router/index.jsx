@@ -8,6 +8,7 @@ import { SewerPage } from '@/pages/Sewer'
 import { NotFoundPage } from '@/pages/NotFound'
 import { ROUTES } from '@/constants/routes'
 import { RootRedirect } from './RootRedirect'
+import { PrivateRoute } from './PrivateRoute'
 
 export const router = createBrowserRouter([
   {
@@ -24,19 +25,19 @@ export const router = createBrowserRouter([
   },
   {
     path: ROUTES.DASHBOARD,
-    element: <DashboardPage />,
+    element: <PrivateRoute><DashboardPage /></PrivateRoute>,
   },
   {
     path: ROUTES.RAINFALL,
-    element: <RainfallPage />,
+    element: <PrivateRoute><RainfallPage /></PrivateRoute>,
   },
   {
     path: ROUTES.RIVER,
-    element: <RiverPage />,
+    element: <PrivateRoute><RiverPage /></PrivateRoute>,
   },
   {
     path: ROUTES.SEWER,
-    element: <SewerPage />,
+    element: <PrivateRoute><SewerPage /></PrivateRoute>,
   },
   {
     path: '*',
