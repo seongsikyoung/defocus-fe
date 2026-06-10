@@ -1,10 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ROUTES } from '@/constants/routes'
 import { QUERY_KEYS } from '@/constants/queryKeys'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useClock } from '@/hooks/useClock'
 import { dashboardApi } from '@/api/dashboard'
+import { Spinner } from '@/components/common/Spinner'
 
 const IMG_AI_DOT   = 'https://www.figma.com/api/mcp/asset/7032a66f-9877-46e7-aff7-405516da4d1f'
 const IMG_LIVE_DOT = 'https://www.figma.com/api/mcp/asset/2a20294d-966d-4e00-9b2a-5eaa3e021b05'
@@ -55,16 +56,28 @@ function formatTime(isoStr) {
 export function DashboardPage() {
   const now = useClock()
 
-  const { data, dataUpdatedAt } = useQuery({
+  const { data, dataUpdatedAt, isLoading, refetch } = useQuery({
     queryKey: QUERY_KEYS.DASHBOARD.SUMMARY,
     queryFn: dashboardApi.getSummary,
     select: (res) => res.data,
     refetchInterval: 10 * 60 * 1000,
   })
 
-  const lastFetchStr = dataUpdatedAt
-    ? new Date(dataUpdatedAt).toLocaleTimeString('ko-KR', { hour12: false }).slice(0, 5)
-    : '--:--'
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const handleAiRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      await dashboardApi.refreshAiAnalysis()
+      await refetch()
+    } catch {
+      // API 실패 시 무시
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  const lastFetchStr = formatTime(dataUpdatedAt)
 
   const rainfall    = data?.rainfall
   const river       = data?.river
@@ -119,17 +132,18 @@ export function DashboardPage() {
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[30px] font-bold leading-none md:text-[34px]"
-                  style={{ color: rfStyle.accent }}>
-                  {rainfall?.avgRainfall?.toFixed(1) ?? '--'}
-                </span>
+                {isLoading
+                  ? <div className="flex h-[36px] items-center"><Spinner size={28} color={rfStyle.accent} /></div>
+                  : <span className="text-[30px] font-bold leading-none md:text-[34px]" style={{ color: rfStyle.accent }}>
+                      {rainfall?.avgRainfall?.toFixed(1) ?? '0.0'}
+                    </span>
+                }
                 <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">mm/h</span>
               </div>
-              <p className="text-[11px] text-[#97abc1]">AWS 89개 관측소 평균</p>
-              <div className="flex items-center gap-1.5">
+              <div className="mt-auto flex items-center gap-1.5">
                 <span className="size-[5px] shrink-0 animate-pulse rounded-full"
                   style={{ background: rfStyle.accent }} />
-                <span className="text-[10px] text-[#97abc1]">10분 단위 · {lastFetchStr}</span>
+                <span className="text-[10px] text-[#97abc1]">10분 단위: {lastFetchStr}</span>
               </div>
             </div>
           </div>
@@ -151,17 +165,18 @@ export function DashboardPage() {
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[30px] font-bold leading-none md:text-[34px]"
-                  style={{ color: rvStyle.accent }}>
-                  {river?.dangerCount ?? '--'}
-                </span>
+                {isLoading
+                  ? <div className="flex h-[36px] items-center"><Spinner size={28} color={rvStyle.accent} /></div>
+                  : <span className="text-[30px] font-bold leading-none md:text-[34px]" style={{ color: rvStyle.accent }}>
+                      {river?.dangerCount ?? 0}
+                    </span>
+                }
                 <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">개소</span>
               </div>
-              <p className="text-[11px] text-[#97abc1]">홍수주의 이상 발령</p>
-              <div className="flex items-center gap-1.5">
+              <div className="mt-auto flex items-center gap-1.5">
                 <span className="size-[5px] shrink-0 animate-pulse rounded-full"
                   style={{ background: rvStyle.accent }} />
-                <span className="text-[10px] text-[#97abc1]">10분 단위 · {lastFetchStr}</span>
+                <span className="text-[10px] text-[#97abc1]">10분 단위: {lastFetchStr}</span>
               </div>
             </div>
           </div>
@@ -183,17 +198,18 @@ export function DashboardPage() {
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[30px] font-bold leading-none md:text-[34px]"
-                  style={{ color: swStyle.accent }}>
-                  {sewer?.dangerCount ?? '--'}
-                </span>
+                {isLoading
+                  ? <div className="flex h-[36px] items-center"><Spinner size={28} color={swStyle.accent} /></div>
+                  : <span className="text-[30px] font-bold leading-none md:text-[34px]" style={{ color: swStyle.accent }}>
+                      {sewer?.dangerCount ?? 0}
+                    </span>
+                }
                 <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">개소</span>
               </div>
-              <p className="text-[11px] text-[#97abc1]">수위 70% 초과 관측소</p>
-              <div className="flex items-center gap-1.5">
+              <div className="mt-auto flex items-center gap-1.5">
                 <span className="size-[5px] shrink-0 animate-pulse rounded-full"
                   style={{ background: swStyle.accent }} />
-                <span className="text-[10px] text-[#97abc1]">10분 단위 · {lastFetchStr}</span>
+                <span className="text-[10px] text-[#97abc1]">10분 단위: {lastFetchStr}</span>
               </div>
             </div>
           </div>
@@ -214,9 +230,12 @@ export function DashboardPage() {
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-[30px] font-bold leading-none text-[#24c552] md:text-[34px]">
-                  {stations?.total ?? '--'}
-                </span>
+                {isLoading
+                  ? <div className="flex h-[36px] items-center"><Spinner size={28} color="#24c552" /></div>
+                  : <span className="text-[30px] font-bold leading-none text-[#24c552] md:text-[34px]">
+                      {stations?.total ?? 0}
+                    </span>
+                }
                 <span className="text-[12px] font-medium text-[#66809b] dark:text-[#94a3b8]">개소</span>
               </div>
               <div className="flex flex-col gap-1.5">
@@ -238,7 +257,7 @@ export function DashboardPage() {
                   )
                 })}
               </div>
-              <span className="text-[10px] text-[#97abc1]">{lastFetchStr} 업데이트</span>
+              <span className="text-[10px] text-[#97abc1]">10분 단위: {lastFetchStr}</span>
             </div>
           </div>
         </div>
@@ -256,11 +275,30 @@ export function DashboardPage() {
                 <img src={IMG_AI_DOT} alt="" className="size-[8px]" />
                 <span className="text-[13px] font-semibold text-[#00b8d1]">AI 현 상황 분석</span>
               </div>
-              <div className="flex items-center gap-1 rounded-[6px] border border-[rgba(219,226,234,0.5)] bg-white px-2.5 py-1 dark:border-[#2d3f5e] dark:bg-[#111d35]">
-                <img src={IMG_LIVE_DOT} alt="" className="size-[6px]" />
-                <span className="text-[11px] text-[#66809b] dark:text-[#94a3b8]">
-                  {aiAnalysis ? formatTime(aiAnalysis.createdAt) : lastFetchStr} 분석
-                </span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 rounded-[6px] border border-[rgba(219,226,234,0.5)] bg-white px-2.5 py-1 dark:border-[#2d3f5e] dark:bg-[#111d35]">
+                  <img src={IMG_LIVE_DOT} alt="" className="size-[6px]" />
+                  <span className="text-[11px] text-[#66809b] dark:text-[#94a3b8]">
+                    {aiAnalysis ? formatTime(aiAnalysis.createdAt) : lastFetchStr} 분석
+                  </span>
+                </div>
+                <button
+                  onClick={handleAiRefresh}
+                  disabled={isRefreshing}
+                  title="지금 AI 재분석"
+                  className="flex size-[26px] items-center justify-center rounded-[6px] border border-[rgba(0,184,209,0.3)] text-[#00b8d1] transition-colors hover:bg-[rgba(0,184,209,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isRefreshing ? (
+                    <svg className="animate-spin" width="13" height="13" viewBox="0 0 13 13" fill="none">
+                      <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="8 8" />
+                    </svg>
+                  ) : (
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                      <path d="M11 6.5A4.5 4.5 0 1 1 6.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M6.5 2 L9 4.5 L6.5 2 L4 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
 
@@ -335,7 +373,7 @@ export function DashboardPage() {
               </span>
             </div>
             <span className="hidden text-[11px] text-[#97abc1] sm:block">
-              AWS 89개소 · {lastFetchStr} 업데이트
+              10분 단위: {lastFetchStr}
             </span>
           </div>
 
@@ -401,7 +439,7 @@ export function DashboardPage() {
             </div>
             <div className="ml-auto flex items-center gap-1.5">
               <span className="size-[5px] animate-pulse rounded-full bg-[#1e87e5]" />
-              <span className="text-[11px] text-[#97abc1]">10분 단위 갱신 · {lastFetchStr}</span>
+              <span className="text-[11px] text-[#97abc1]">10분 단위: {lastFetchStr}</span>
             </div>
           </div>
         </div>

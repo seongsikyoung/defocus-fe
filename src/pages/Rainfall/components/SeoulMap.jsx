@@ -16,12 +16,11 @@ export function SeoulMap({ rainfallData }) {
 
   // Full draw — mount + resize only
   useEffect(() => {
-    let rafId
+    let rafId = null
 
     const draw = () => {
       if (!svgRef.current || !containerRef.current) return
       const { width, height } = containerRef.current.getBoundingClientRect()
-      // Dimension check BEFORE touching refs — failed draws must not corrupt state
       if (!width || !height) return
 
       const svg = d3.select(svgRef.current)
@@ -56,7 +55,7 @@ export function SeoulMap({ rainfallData }) {
           d3.select(this).attr('stroke', 'white').attr('stroke-width', 1.2)
           setTooltip(null)
         })
-        .transition()
+        .transition('entrance')
         .duration(420)
         .ease(d3.easeCubicOut)
         .delay(d => {
@@ -105,25 +104,25 @@ export function SeoulMap({ rainfallData }) {
         .text(d => `${(snap[d.properties.name] || 0).toFixed(1)}`)
 
       labelG.selectAll('text')
-        .transition().duration(300).delay(700).attr('opacity', 1)
+        .transition('entrance').duration(300).delay(700).attr('opacity', 1)
 
       initializedRef.current = true
     }
 
-    // RAF retry: keep retrying until the container has layout dimensions.
-    // This handles cases where CSS layout isn't complete at effect time.
-    const tryDraw = () => {
-      if (!containerRef.current) return
-      const { width, height } = containerRef.current.getBoundingClientRect()
-      if (!width || !height) {
-        rafId = requestAnimationFrame(tryDraw)
-      } else {
-        draw()
-      }
+    // Debounced RAF draw: cancels any pending RAF before scheduling a new one.
+    // This prevents ResizeObserver and the initial RAF from both calling draw()
+    // at nearly the same time, which would cancel in-progress opacity transitions.
+    const scheduleDraw = () => {
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        if (!containerRef.current) return
+        const { width, height } = containerRef.current.getBoundingClientRect()
+        if (width && height) draw()
+      })
     }
 
-    rafId = requestAnimationFrame(tryDraw)
-    const ro = new ResizeObserver(draw)
+    scheduleDraw()
+    const ro = new ResizeObserver(scheduleDraw)
     if (containerRef.current) ro.observe(containerRef.current)
     return () => { cancelAnimationFrame(rafId); ro.disconnect() }
   }, [])

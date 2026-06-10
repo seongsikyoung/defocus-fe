@@ -8,6 +8,7 @@ import { getRainfallLevel, getRainfallLevelByStatus } from '@/utils/statusUtils'
 import { rainfallApi } from '@/api/rainfall'
 import { RAINFALL_LEGEND, toDatetimeLocal, fmtDateTime } from '@/mocks/rainfall'
 import { SeoulMap } from './components'
+import { Spinner } from '@/components/common/Spinner'
 
 const MAX_RANGE_MS = 3 * 24 * 60 * 60 * 1000   // 3 days
 
@@ -41,11 +42,12 @@ export function RainfallPage() {
   const [isPeriodLoading,   setIsPeriodLoading]   = useState(false)
   const [periodError,       setPeriodError]       = useState(null)
   const [speedIdx,          setSpeedIdx]          = useState(0)
+  const [seekHover,         setSeekHover]         = useState(null)
 
   const stepMs = SPEEDS[speedIdx].ms
 
   // ── Realtime query ──────────────────────────────────────────────────────────
-  const { data: realtimeData, dataUpdatedAt } = useQuery({
+  const { data: realtimeData, dataUpdatedAt, isLoading: isRealtimeLoading } = useQuery({
     queryKey: QUERY_KEYS.RAINFALL.REALTIME,
     queryFn: () => rainfallApi.getRealtime(),
     enabled: mode === 'realtime',
@@ -142,6 +144,17 @@ export function RainfallPage() {
     setIsPlaying(false)
     setSnapshot(step); setDisplayData(step.displayData); setPlaybackTimestamp(new Date(step.observedAt))
   }
+
+  const handleSeekMouseMove = (e) => {
+    if (!playbackSteps.length) return
+    const rect  = e.currentTarget.getBoundingClientRect()
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+    const idx   = Math.min(Math.floor(ratio * playbackSteps.length), playbackSteps.length - 1)
+    const label = fmtDateTime(new Date(playbackSteps[idx].observedAt))
+    setSeekHover({ x: e.clientX - rect.left, label, w: rect.width })
+  }
+
+  const handleSeekMouseLeave = () => setSeekHover(null)
 
   // ── Derived values ───────────────────────────────────────────────────────────
   const fromMs      = fromDate ? new Date(fromDate).getTime() : 0
@@ -315,15 +328,28 @@ export function RainfallPage() {
                 </span>
 
                 {/* Seekbar */}
-                <div
-                  className="h-[6px] flex-1 cursor-pointer overflow-hidden rounded-full bg-[#ddd6fe] dark:bg-[#312e81]"
-                  onClick={seekTo}
-                  title="클릭하여 이동"
-                >
+                <div className="relative flex-1">
+                  {seekHover && (
+                    <div
+                      className="pointer-events-none absolute bottom-full mb-1 z-20 rounded-[4px] bg-[#1e293b] px-1.5 py-[3px] text-[10px] font-medium text-white shadow-md whitespace-nowrap"
+                      style={{
+                        left: Math.max(0, Math.min(seekHover.x - 52, seekHover.w - 104)),
+                      }}
+                    >
+                      {seekHover.label}
+                    </div>
+                  )}
                   <div
-                    className="h-full rounded-full bg-[#6366f1] transition-[width] duration-300"
-                    style={{ width: `${progressPct}%` }}
-                  />
+                    className="h-[6px] w-full cursor-pointer rounded-full bg-[#ddd6fe] dark:bg-[#312e81]"
+                    onClick={seekTo}
+                    onMouseMove={handleSeekMouseMove}
+                    onMouseLeave={handleSeekMouseLeave}
+                  >
+                    <div
+                      className="h-full rounded-full bg-[#6366f1] transition-[width] duration-300"
+                      style={{ width: `${progressPct}%` }}
+                    />
+                  </div>
                 </div>
 
                 {/* Current timestamp */}
@@ -371,7 +397,10 @@ export function RainfallPage() {
             <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '100ms' }}>
               <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">서울시 평균 강수량</p>
               <div className="mt-1 flex items-end gap-1.5">
-                <span className="text-[20px] font-bold text-[#3b82f6] md:text-[22px]">{avgRain}</span>
+                {isRealtimeLoading && snapshot === null
+                  ? <div className="flex h-[28px] items-center"><Spinner size={22} color="#3b82f6" /></div>
+                  : <span className="text-[20px] font-bold text-[#3b82f6] md:text-[22px]">{avgRain}</span>
+                }
                 <span className="mb-0.5 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">mm/10min</span>
               </div>
             </div>
@@ -381,7 +410,10 @@ export function RainfallPage() {
               <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">최고 강수량 지역</p>
               <div className="mt-1 flex items-end justify-between gap-2">
                 <div className="flex items-end gap-1.5">
-                  <span className="text-[20px] font-bold text-[#ed8936] md:text-[22px]">{Number(maxRain).toFixed(1)}</span>
+                  {isRealtimeLoading && snapshot === null
+                    ? <div className="flex h-[28px] items-center"><Spinner size={22} color="#ed8936" /></div>
+                    : <span className="text-[20px] font-bold text-[#ed8936] md:text-[22px]">{Number(maxRain).toFixed(1)}</span>
+                  }
                   <span className="mb-0.5 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">mm/10min</span>
                 </div>
                 <span className="shrink-0 text-[10px] text-[#64748b] dark:text-[#94a3b8] md:text-[11px]">
@@ -399,7 +431,9 @@ export function RainfallPage() {
             <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white p-3 md:p-4 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '300ms' }}>
               <p className="mb-2 text-[12px] font-semibold text-[#1e293b] dark:text-[#e2e8f0] md:text-[13px]">구별 강수량 순위 (Top 7)</p>
               <div className="flex flex-col gap-0.5">
-                {rankList.length > 0 ? (
+                {isRealtimeLoading && snapshot === null ? (
+                  <div className="flex justify-center py-4"><Spinner size={24} color="#6366f1" /></div>
+                ) : rankList.length > 0 ? (
                   rankList.map((item, i) => {
                     const level = getRainfallLevelByStatus(item.rainfallLevel)
                     return (

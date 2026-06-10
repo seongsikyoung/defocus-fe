@@ -5,6 +5,7 @@ import { DashboardPage } from '@/pages/Dashboard'
 import { RainfallPage } from '@/pages/Rainfall'
 import { RiverPage } from '@/pages/River'
 import { SewerPage } from '@/pages/Sewer'
+import { AdminPage } from '@/pages/Admin'
 import { NotFoundPage } from '@/pages/NotFound'
 import { ROUTES } from '@/constants/routes'
 import { RootRedirect } from './RootRedirect'
@@ -38,6 +39,10 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.SEWER,
     element: <PrivateRoute><SewerPage /></PrivateRoute>,
+  },
+  {
+    path: ROUTES.ADMIN,
+    element: <PrivateRoute><AdminPage /></PrivateRoute>,
   },
   {
     path: '*',

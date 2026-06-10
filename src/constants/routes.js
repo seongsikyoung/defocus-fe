@@ -6,4 +6,5 @@ export const ROUTES = {
   RAINFALL: '/rainfall',
   RIVER: '/river',
   SEWER: '/sewer',
+  ADMIN: '/admin',
 }

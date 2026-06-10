@@ -1,7 +1,18 @@
 import { getRiverStatus } from '@/utils/statusUtils'
 import { RiverGauge } from './RiverGauge'
 
-export function RiverStationPanel({ station }) {
+function fmtObservedAt(iso) {
+  if (!iso) return '—'
+  const d    = new Date(iso)
+  const yyyy = d.getFullYear()
+  const mm   = String(d.getMonth() + 1).padStart(2, '0')
+  const dd   = String(d.getDate()).padStart(2, '0')
+  const hh   = String(d.getHours()).padStart(2, '0')
+  const min  = String(d.getMinutes()).padStart(2, '0')
+  return `${yyyy}년 ${mm}월 ${dd}일 ${hh}시 ${min}분`
+}
+
+export function RiverStationPanel({ station, onClose }) {
   const status     = getRiverStatus(station)
   const depth      = (station.current - station.riverBed).toFixed(2)
   const toFlood    = (station.plannedFlood - station.current).toFixed(2)
@@ -16,10 +27,23 @@ export function RiverStationPanel({ station }) {
             <p className="text-[11px] font-medium text-[#94a3b8]">하천 수위 관측소</p>
             <h2 className="mt-0.5 text-[17px] font-bold text-[#1e293b] dark:text-[#e2e8f0]">{station.name}</h2>
           </div>
-          <span className="shrink-0 rounded-[7px] px-3 py-1.5 text-[12px] font-semibold"
-            style={{ background: status.bg, color: status.color }}>
-            {status.label}
-          </span>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <span className="rounded-[7px] px-3 py-1.5 text-[12px] font-semibold"
+              style={{ background: status.bg, color: status.color }}>
+              {status.label}
+            </span>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="flex h-6 w-6 items-center justify-center rounded-full text-[#94a3b8] transition-colors hover:bg-[#f1f5f9] hover:text-[#475569] dark:hover:bg-[#2d3f5e] dark:hover:text-[#cbd5e1]"
+                aria-label="닫기"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -42,9 +66,10 @@ export function RiverStationPanel({ station }) {
             { label: '계획홍수위',  value: `${station.plannedFlood.toFixed(1)} m`, color: '#fe9600'                   },
             { label: '하상고',      value: `${station.riverBed.toFixed(1)} m`,     color: '#94a3b8'                   },
             { label: '여유고',      value: `${toFlood > 0 ? '+' : ''}${toFlood} m`, color: toFlood < 0 ? '#f34236' : '#24c552' },
-          ].map(({ label, value, color, highlight, neutral }) => (
+            { label: '관측 시각',   value: fmtObservedAt(station.observedAt),        color: '#1e293b', neutral: true, wide: true },
+          ].map(({ label, value, color, highlight, neutral, wide }) => (
             <div key={label}
-              className="flex flex-col gap-1 rounded-[8px] border bg-[#f8fafc] px-3 py-2.5 dark:bg-[#111d35]"
+              className={`flex flex-col gap-1 rounded-[8px] border bg-[#f8fafc] px-3 py-2.5 dark:bg-[#111d35]${wide ? ' col-span-2' : ''}`}
               style={{ borderColor: highlight ? `${color}40` : '#e2e8f0' }}>
               <span className="text-[10px] text-[#94a3b8]">{label}</span>
               {neutral

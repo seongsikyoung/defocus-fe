@@ -20,11 +20,15 @@ export function getRainfallLevelByStatus(status) {
   return RAINFALL_STATUS_LEVELS[status] ?? RAINFALL_STATUS_LEVELS.NORMAL
 }
 
+const RIVER_STATUS_MAP = {
+  OVERFLOW: { level: 'flood',   label: '범람 임박', color: '#f34236', bg: 'rgba(243,66,54,0.12)',  dot: '#f34236' },
+  DANGER:   { level: 'danger',  label: '위험',      color: '#fe9600', bg: 'rgba(254,150,0,0.12)',  dot: '#fe9600' },
+  CAUTION:  { level: 'caution', label: '주의',      color: '#f5c518', bg: 'rgba(245,197,24,0.12)', dot: '#f5c518' },
+  NORMAL:   { level: 'normal',  label: '정상',      color: '#24c552', bg: 'rgba(36,197,82,0.12)',  dot: '#24c552' },
+}
+
 export function getRiverStatus(s) {
-  if (s.current >= s.embankment)          return { level: 'flood',   label: '범람 임박', color: '#f34236', bg: 'rgba(243,66,54,0.12)',  dot: '#f34236' }
-  if (s.current >= s.plannedFlood)        return { level: 'danger',  label: '위험',      color: '#fe9600', bg: 'rgba(254,150,0,0.12)',  dot: '#fe9600' }
-  if (s.current >= s.plannedFlood * 0.75) return { level: 'caution', label: '주의',      color: '#f5c518', bg: 'rgba(245,197,24,0.12)', dot: '#f5c518' }
-  return                                          { level: 'normal',  label: '정상',      color: '#24c552', bg: 'rgba(36,197,82,0.12)',  dot: '#24c552' }
+  return RIVER_STATUS_MAP[s.waterLevelStatus] ?? RIVER_STATUS_MAP.NORMAL
 }
 
 export function getSewerStatus(fill) {
