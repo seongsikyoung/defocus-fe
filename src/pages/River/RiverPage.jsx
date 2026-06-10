@@ -86,13 +86,13 @@ export function RiverPage() {
   const [selectedRegionIds, setSelectedRegionIds] = useState(new Set())
   const [regionsReady, setRegionsReady]   = useState(false)
 
-  const { data: riverData } = useQuery({
+  const { data: riverData, refetch: refetchRiver } = useQuery({
     queryKey: QUERY_KEYS.RIVER.MARKERS,
     queryFn:  riverApi.getMarkers,
     staleTime: 0,
   })
 
-  const { data: sewerData } = useQuery({
+  const { data: sewerData, refetch: refetchSewer } = useQuery({
     queryKey: QUERY_KEYS.RIVER.SEWER_MARKERS,
     queryFn:  riverApi.getSewerMarkers,
     staleTime: 0,
@@ -163,11 +163,12 @@ export function RiverPage() {
       activeRoute={ROUTES.RIVER}
       alertCount={alertCnt}
       outerBg="bg-[#f1f5f9]"
+      onTabReclick={() => { refetchRiver(); refetchSewer() }}
     >
-      <div className="flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1">
 
         {/* Map area */}
-        <div className="relative min-h-0 flex-1">
+        <div className="relative min-h-0 flex-1 pb-14 md:pb-0">
           <KakaoMap stations={visibleStations} onSelect={setSelected} />
 
           {/* District filter (bottom-right — keeps Kakao logo bottom-left clear) */}
@@ -217,10 +218,26 @@ export function RiverPage() {
           </div>
         </div>
 
-        {/* Right detail panel */}
+        {/* Mobile backdrop */}
+        {selected && (
+          <div
+            className="absolute inset-0 z-30 bg-black/40 md:hidden"
+            onClick={() => setSelected(null)}
+          />
+        )}
+
+        {/* Right detail panel — mobile: full-width slide-over, desktop: side panel */}
         <div
-          className="h-full shrink-0 overflow-hidden border-l border-[#e2e8f0] bg-white transition-all duration-300 dark:border-[#2d3f5e] dark:bg-[#1a2744]"
-          style={{ width: selected ? 340 : 0 }}
+          className={[
+            'overflow-hidden bg-white dark:bg-[#1a2744] transition-all duration-300',
+            'border-l border-[#e2e8f0] dark:border-[#2d3f5e]',
+            // mobile: absolute full-width overlay, slides in from right
+            'absolute inset-y-0 right-0 z-40 w-full',
+            selected ? '' : 'max-md:translate-x-full',
+            // desktop: static side panel controlled by width
+            'md:relative md:inset-auto md:z-auto md:h-full md:shrink-0',
+            selected ? 'md:w-[340px]' : 'md:w-0',
+          ].join(' ')}
         >
           {selected && (
             detailLoading

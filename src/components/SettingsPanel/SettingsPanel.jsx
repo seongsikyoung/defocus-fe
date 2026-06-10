@@ -118,6 +118,17 @@ export function SettingsPanel({ onClose }) {
               </div>
             </div>
 
+            {/* Simulation Shortcut */}
+            <button
+              onClick={() => window.open(ROUTES.ADMIN, '_blank')}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#e2e8f0] bg-white px-4 py-2.5 transition-colors hover:bg-[#f8fafc] dark:border-[#2d3f5e] dark:bg-[#1e2d45] dark:hover:bg-[#243352]"
+            >
+              <span className="rounded-full bg-[#7c3aed] px-2.5 py-0.5 text-[10px] font-semibold text-white">
+                시뮬레이션
+              </span>
+              <span className="text-[12px] font-semibold text-[#1e293b] dark:text-[#e2e8f0]">바로가기</span>
+            </button>
+
           </div>
 
           {/* Logout — inside scroll so it doesn't eat into content space */}

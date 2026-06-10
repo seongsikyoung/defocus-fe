@@ -26,29 +26,19 @@ export const SEWER_REF_LINES = [
   { f: 0.8, color: '#fe9600', label: '80%' },
 ]
 
-export const RIVER_ICON_SVG = `<svg width="15" height="10" viewBox="0 0 15 10" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:5px;flex-shrink:0;display:block;">
-  <path d="M0.5 6.5 Q2.2 3 3.8 6.5 Q5.4 10 7 6.5 Q8.6 3 10.2 6.5 Q11.8 10 13.5 6.5" stroke="rgba(255,255,255,0.92)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-  <path d="M1 3 Q2.5 0.5 4 3 Q5.5 5.5 7 3 Q8.5 0.5 10 3" stroke="rgba(255,255,255,0.45)" stroke-width="1.1" stroke-linecap="round" fill="none"/>
-</svg>`
-
-export const SEWER_ICON_SVG = `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:5px;flex-shrink:0;display:block;">
-  <circle cx="6.5" cy="6.5" r="5" stroke="rgba(255,255,255,0.92)" stroke-width="1.6"/>
-  <circle cx="6.5" cy="6.5" r="2.1" stroke="rgba(255,255,255,0.5)" stroke-width="1.1"/>
-  <circle cx="6.5" cy="6.5" r="0.8" fill="rgba(255,255,255,0.55)"/>
-</svg>`
 
 export const FILTER_CONFIG = [
   {
     key: 'river',
     label: '하천',
-    color: '#1d4ed8',
+    color: '#1a73e8',
     activeBg: 'rgba(219,234,254,0.95)',
     icon: (active) => (
       <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
         <path d="M0.5 7 Q2.2 3.5 4 7 Q5.8 10.5 7.5 7 Q9.2 3.5 11 7 Q12.8 10.5 14.5 7"
-          stroke={active ? '#1d4ed8' : '#9ca3af'} strokeWidth="1.8" strokeLinecap="round"/>
+          stroke={active ? '#1a73e8' : '#9ca3af'} strokeWidth="1.8" strokeLinecap="round"/>
         <path d="M1 3.5 Q2.7 0.5 4.5 3.5 Q6.2 6.5 8 3.5 Q9.7 0.5 11.5 3.5"
-          stroke={active ? '#93c5fd' : '#d1d5db'} strokeWidth="1.1" strokeLinecap="round"/>
+          stroke={active ? '#60a5fa' : '#d1d5db'} strokeWidth="1.1" strokeLinecap="round"/>
       </svg>
     ),
   },
@@ -60,8 +50,10 @@ export const FILTER_CONFIG = [
     icon: (active) => (
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <circle cx="7" cy="7" r="5.5" stroke={active ? '#7c3aed' : '#9ca3af'} strokeWidth="1.6"/>
-        <circle cx="7" cy="7" r="2.4" stroke={active ? '#c4b5fd' : '#d1d5db'} strokeWidth="1.1"/>
-        <circle cx="7" cy="7" r="0.9" fill={active ? '#7c3aed' : '#9ca3af'} opacity="0.6"/>
+        <circle cx="7" cy="7" r="3" stroke={active ? '#c4b5fd' : '#d1d5db'} strokeWidth="1.1"/>
+        <circle cx="7" cy="7" r="1" fill={active ? '#7c3aed' : '#9ca3af'}/>
+        <path d="M7 1.5v2M7 10.5v2M1.5 7h2M10.5 7h2"
+          stroke={active ? '#7c3aed' : '#d1d5db'} strokeWidth="0.9" strokeLinecap="round" opacity={active ? '0.55' : '0.4'}/>
       </svg>
     ),
   },

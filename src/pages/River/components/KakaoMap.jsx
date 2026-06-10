@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
 import { getStationStatus } from '@/utils/statusUtils'
-import { RIVER_ICON_SVG, SEWER_ICON_SVG } from '@/mocks/river'
 
 export function KakaoMap({ stations, onSelect }) {
   const containerRef = useRef(null)
@@ -19,22 +18,67 @@ export function KakaoMap({ stations, onSelect }) {
     stationList.forEach(station => {
       const isRiver = station.type === 'river'
       const st      = getStationStatus(station)
-      const icon    = isRiver ? RIVER_ICON_SVG : SEWER_ICON_SVG
-      const tail    = isRiver
-        ? `<div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid ${st.color};margin-top:-1px;"></div>`
-        : `<div style="width:7px;height:7px;border-radius:50%;background:${st.color};margin-top:3px;border:2px solid #fff;box-shadow:0 1px 5px ${st.color}99;"></div>`
+
+      // ── Pin shape paths (both fit viewBox 0 0 36 46) ──
+      // River: teardrop — organic, pointed bottom
+      // Sewer: shield/crest — flat-sided, pointed-V bottom notch, clearly heraldic
+      const pinPath = isRiver
+        ? 'M18 2C9.16 2 2 9.16 2 18c0 11 16 26 16 26s16-15 16-26C34 9.16 26.84 2 18 2z'
+        : 'M18 2C9.16 2 2 9.16 2 18L2 36Q2 42 8 42L14 42L18 46L22 42L28 42Q34 42 34 36L34 18C34 9.16 26.84 2 18 2z'
+
+      // ── Icon paths inside the pin (circle area centered at cx=18, cy=17) ──
+      const iconPaths = isRiver
+        // Water waves
+        ? `<path d="M9 20 Q12 16.5 15 20 Q18 23.5 21 20 Q24 16.5 27 20"
+             stroke="rgba(255,255,255,0.95)" stroke-width="2.3" stroke-linecap="round" fill="none"/>
+           <path d="M10 14 Q13 11 16 14 Q19 17 22 14 Q25 11 27 14"
+             stroke="rgba(255,255,255,0.55)" stroke-width="1.3" stroke-linecap="round" fill="none"/>`
+        // Manhole cover — concentric rings + cardinal ticks
+        : `<circle cx="18" cy="17" r="9" stroke="rgba(255,255,255,0.9)" stroke-width="1.7" fill="none"/>
+           <circle cx="18" cy="17" r="5" stroke="rgba(255,255,255,0.55)" stroke-width="1.2" fill="none"/>
+           <circle cx="18" cy="17" r="1.6" fill="rgba(255,255,255,0.85)"/>
+           <path d="M18 8v3M18 23v3M9 17h3M24 17h3"
+             stroke="rgba(255,255,255,0.45)" stroke-width="1.1" stroke-linecap="round"/>`
 
       const div = document.createElement('div')
-      div.style.cssText = 'display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translateY(-100%);'
+      div.style.cssText = 'position:relative;display:inline-flex;flex-direction:column;align-items:center;cursor:pointer;'
       div.innerHTML = `
-        <div style="display:flex;align-items:center;background:${st.color};color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px;white-space:nowrap;box-shadow:0 2px 10px ${st.color}66;border:2px solid #fff;transition:transform 0.15s;">
-          ${icon}${station.name}
+        <div style="
+          position:absolute;bottom:50px;left:50%;transform:translateX(-50%);
+          background:#1e293b;color:#f8fafc;
+          font-size:11px;font-weight:600;line-height:1.3;
+          padding:5px 10px;border-radius:7px;white-space:nowrap;
+          box-shadow:0 4px 14px rgba(0,0,0,0.28);
+          pointer-events:none;opacity:0;transition:opacity 0.15s ease;z-index:9999;
+        ">
+          ${station.name}
+          <div style="
+            position:absolute;top:100%;left:50%;transform:translateX(-50%);
+            width:0;height:0;
+            border-left:5px solid transparent;border-right:5px solid transparent;
+            border-top:5px solid #1e293b;
+          "></div>
         </div>
-        ${tail}
+        <svg width="36" height="46" viewBox="0 0 36 46" fill="none" xmlns="http://www.w3.org/2000/svg"
+          style="display:block;filter:drop-shadow(0 2px 7px ${st.color}90);transition:transform 0.15s ease;">
+          <path d="${pinPath}" fill="${st.color}" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="18" cy="17" r="12" fill="rgba(255,255,255,0.12)"/>
+          ${iconPaths}
+        </svg>
       `
+
+      const tooltip = div.firstElementChild
+      const svg     = div.lastElementChild
+
       div.addEventListener('click', () => onSelectRef.current(station))
-      div.addEventListener('mouseenter', () => { div.children[0].style.transform = 'scale(1.08)' })
-      div.addEventListener('mouseleave', () => { div.children[0].style.transform = 'scale(1)' })
+      div.addEventListener('mouseenter', () => {
+        tooltip.style.opacity = '1'
+        svg.style.transform = 'scale(1.12)'
+      })
+      div.addEventListener('mouseleave', () => {
+        tooltip.style.opacity = '0'
+        svg.style.transform = 'scale(1)'
+      })
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(station.lat, station.lng),
@@ -119,12 +163,13 @@ export function KakaoMap({ stations, onSelect }) {
                   className="flex items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-[11px] font-medium shadow-sm transition-shadow hover:shadow-md"
                   style={{ borderColor: `${st.color}40`, color: st.color }}>
                   {isRiver
-                    ? <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
-                        <path d="M0.5 5.5 Q2 2.5 3.5 5.5 Q5 8.5 6.5 5.5 Q8 2.5 9.5 5.5 Q11 8.5 12 5.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                    ? <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+                        <path d="M1 7 Q3.5 3.5 6 7 Q8.5 10.5 11 7 Q13.5 3.5 14 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
                       </svg>
-                    : <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                        <circle cx="5" cy="5" r="3.5" stroke="currentColor" strokeWidth="1.3"/>
-                        <circle cx="5" cy="5" r="1.4" stroke="currentColor" strokeWidth="0.9" opacity="0.6"/>
+                    : <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3"/>
+                        <circle cx="6" cy="6" r="2.2" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
+                        <circle cx="6" cy="6" r="0.8" fill="currentColor" opacity="0.7"/>
                       </svg>
                   }
                   {s.name}

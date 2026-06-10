@@ -47,12 +47,12 @@ export function RainfallPage() {
   const stepMs = SPEEDS[speedIdx].ms
 
   // ── Realtime query ──────────────────────────────────────────────────────────
-  const { data: realtimeData, dataUpdatedAt, isLoading: isRealtimeLoading } = useQuery({
+  const { data: realtimeData, dataUpdatedAt, isLoading: isRealtimeLoading, refetch: refetchRealtime } = useQuery({
     queryKey: QUERY_KEYS.RAINFALL.REALTIME,
     queryFn: () => rainfallApi.getRealtime(),
     enabled: mode === 'realtime',
     refetchInterval: 10 * 60 * 1000,
-    staleTime: 9 * 60 * 1000,
+    staleTime: 0,
   })
 
   useEffect(() => {
@@ -197,8 +197,9 @@ export function RainfallPage() {
       alertCount={alertCount}
       outerBg="bg-[#f1f5f9]"
       fullHeight={false}
+      onTabReclick={() => { if (mode === 'realtime') refetchRealtime() }}
     >
-      <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-3 md:p-4 scrollbar-hide dark:bg-[#0f1729]">
+      <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-3 pt-3 pb-[calc(56px+12px)] md:p-4 md:pb-4 scrollbar-hide dark:bg-[#0f1729]">
 
         {/* ── Filter Bar ─────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[8px] border border-[#e2e8f0] bg-white px-3 py-2.5 md:px-4 dark:border-[#2d3f5e] dark:bg-[#1e2d45]">
@@ -224,7 +225,7 @@ export function RainfallPage() {
               type="datetime-local" value={fromDate}
               onChange={e => handleFromDateChange(e.target.value)}
               min={fromDateMin}
-              className="rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-2 py-1 text-[11px] text-[#1e293b] focus:border-[#3b82f6] focus:outline-none dark:border-[#2d3f5e] dark:bg-[#111d35] dark:text-[#e2e8f0]"
+              className="w-[172px] rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-2 py-1 text-[11px] text-[#1e293b] focus:border-[#3b82f6] focus:outline-none dark:border-[#2d3f5e] dark:bg-[#111d35] dark:text-[#e2e8f0] [color-scheme:light] dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:ml-3 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
             />
             <span className="text-[12px] font-medium text-[#94a3b8]">~</span>
             <span className="text-[11px] text-[#94a3b8]">종료</span>
@@ -233,7 +234,7 @@ export function RainfallPage() {
               onChange={e => handleToDateChange(e.target.value)}
               min={fromDate}
               max={toDateMax}
-              className="rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-2 py-1 text-[11px] text-[#1e293b] focus:border-[#3b82f6] focus:outline-none dark:border-[#2d3f5e] dark:bg-[#111d35] dark:text-[#e2e8f0]"
+              className="w-[172px] rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-2 py-1 text-[11px] text-[#1e293b] focus:border-[#3b82f6] focus:outline-none dark:border-[#2d3f5e] dark:bg-[#111d35] dark:text-[#e2e8f0] [color-scheme:light] dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:ml-3 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
             />
             {rangeOver && (
               <span className="text-[10px] font-semibold text-[#e53e3e]">최대 3일</span>
@@ -266,7 +267,13 @@ export function RainfallPage() {
 
             {/* Map header */}
             <div className="flex h-12 shrink-0 items-center px-4">
-              <span className="text-[14px] font-semibold text-[#1e293b] dark:text-[#e2e8f0] md:text-[15px]">서울시 구별 강수량 현황</span>
+              <div className="flex items-center gap-1.5">
+                <svg width="16" height="16" viewBox="0 0 14 14" fill="none" className="shrink-0 text-[#3b82f6]">
+                  <path d="M10 6a2.5 2.5 0 0 0-2.5-2.5 2.5 2.5 0 0 0-2.4 1.8H4.5a1.5 1.5 0 0 0 0 3h5a1.5 1.5 0 0 0 0-3H9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4.5 10.5L4 12M7 10.5l-.5 1.5M9.5 10.5L9 12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
+                <span className="text-[14px] font-semibold text-[#1e293b] dark:text-[#e2e8f0] md:text-[15px]">서울시 구별 강수량 현황</span>
+              </div>
               <span className="ml-2 text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">단위: mm/10min</span>
               {isPlaying && (
                 <span className="ml-auto flex items-center gap-1.5 text-[11px] font-semibold text-[#6366f1]">
@@ -395,7 +402,7 @@ export function RainfallPage() {
 
             {/* Average rainfall */}
             <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '100ms' }}>
-              <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">서울시 평균 강수량</p>
+              <p className="text-[11px] font-semibold text-[#374151] dark:text-[#94a3b8] md:text-[12px]">서울시 평균 강수량</p>
               <div className="mt-1 flex items-end gap-1.5">
                 {isRealtimeLoading && snapshot === null
                   ? <div className="flex h-[28px] items-center"><Spinner size={22} color="#3b82f6" /></div>
@@ -407,7 +414,7 @@ export function RainfallPage() {
 
             {/* Max rainfall */}
             <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '200ms' }}>
-              <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">최고 강수량 지역</p>
+              <p className="text-[11px] font-semibold text-[#374151] dark:text-[#94a3b8] md:text-[12px]">최고 강수량 지역</p>
               <div className="mt-1 flex items-end justify-between gap-2">
                 <div className="flex items-end gap-1.5">
                   {isRealtimeLoading && snapshot === null
@@ -457,7 +464,7 @@ export function RainfallPage() {
 
             {/* Alert districts */}
             <div className="animate-slide-up rounded-[10px] border border-[#e2e8f0] bg-white px-4 py-3 dark:border-[#2d3f5e] dark:bg-[#1e2d45]" style={{ animationDelay: '400ms' }}>
-              <p className="text-[11px] text-[#64748b] dark:text-[#94a3b8] md:text-[12px]">경보 발령 구</p>
+              <p className="text-[11px] font-semibold text-[#374151] dark:text-[#94a3b8] md:text-[12px]">경보 발령 구</p>
               <div className="mt-1 flex items-end justify-between gap-2">
                 <div className="flex items-end gap-1.5">
                   <span className="text-[20px] font-bold text-[#e53e3e] md:text-[22px]">{alertCount}</span>

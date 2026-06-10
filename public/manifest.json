@@ -1,0 +1,26 @@
+{
+  "name": "실시간 강수 재난안전 통합 모니터링",
+  "short_name": "강수 모니터링",
+  "description": "서울 실시간 강수·하천·하수관 재난안전 통합 모니터링 시스템",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#edf0f4",
+  "theme_color": "#3b82f6",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/icons/pwa-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/pwa-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
