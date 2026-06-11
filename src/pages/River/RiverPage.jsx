@@ -231,8 +231,8 @@ export function RiverPage() {
           className={[
             'overflow-hidden bg-white dark:bg-[#1a2744] transition-all duration-300',
             'border-l border-[#e2e8f0] dark:border-[#2d3f5e]',
-            // mobile: absolute full-width overlay, slides in from right
-            'absolute inset-y-0 right-0 z-40 w-full',
+            // mobile: absolute full-width overlay, slides in from right — stop above fixed nav (h-14)
+            'absolute top-0 bottom-14 right-0 z-40 w-full',
             selected ? '' : 'max-md:translate-x-full',
             // desktop: static side panel controlled by width
             'md:relative md:inset-auto md:z-auto md:h-full md:shrink-0',
