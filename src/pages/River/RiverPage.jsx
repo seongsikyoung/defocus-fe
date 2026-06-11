@@ -182,8 +182,8 @@ export function RiverPage() {
             />
           )}
 
-          {/* Filter toggles */}
-          <div className="absolute top-3 left-3 z-50 flex gap-2">
+          {/* Filter toggles — hide on mobile when detail panel is open */}
+          <div className={`absolute top-3 left-3 z-50 flex gap-2 ${selected ? 'max-md:hidden' : ''}`}>
             {FILTER_CONFIG.map(({ key, label, color, activeBg, icon }) => {
               const on = filter[key]
               return (

@@ -80,9 +80,7 @@ export function DashboardLayout({
       {/* ── Header ── */}
       <header className="grid h-14 shrink-0 grid-cols-[52px_1fr_auto] md:grid-cols-[84px_1fr_auto] items-center bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.06)] dark:bg-[#1a2744] dark:shadow-[0px_2px_8px_0px_rgba(0,0,0,0.3)]">
         <div className="flex items-center justify-center">
-          <div className="flex size-[30px] items-center justify-center rounded-full bg-[#3b82f6]">
-            <span className="text-sm font-bold text-white">D</span>
-          </div>
+          <img src="/app-icon.svg" width={30} height={30} alt="" />
         </div>
         <p className="truncate px-2 text-center text-[12px] font-bold text-[#1e293b] dark:text-[#e2e8f0] sm:text-[15px]">
           실시간 강수 재난안전 통합 모니터링 시스템

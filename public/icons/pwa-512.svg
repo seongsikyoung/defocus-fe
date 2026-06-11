@@ -1,4 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="100" fill="#3b82f6"/>
-  <text x="256" y="340" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="290" font-weight="bold" fill="white">D</text>
+<svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" fill="url(#paint0_linear)"/>
+  <path d="M150 56C175.405 56 196 76.5949 196 102C196 111.654 193.023 120.611 187.941 128.01C187.98 128.535 188 129.065 188 129.6V130.4C188 142.329 178.329 152 166.4 152H89.5996C77.6706 152 68.0002 142.329 68 130.4V129.6C68 129.396 68.0032 129.193 68.0088 128.99C65.4596 124.58 64 119.46 64 114C64 97.4315 77.4315 84 94 84C98.4954 84 102.759 84.9908 106.587 86.7627C112.875 68.8468 129.936 56 150 56Z" fill="white"/>
+  <rect x="84" y="172" width="19.2" height="44" rx="9.6" transform="rotate(20 84 172)" fill="#94C5FC"/>
+  <rect x="124" y="172" width="19.2" height="44" rx="9.6" transform="rotate(20 124 172)" fill="#94C5FC"/>
+  <rect x="164" y="172" width="19.2" height="44" rx="9.6" transform="rotate(20 164 172)" fill="#94C5FC"/>
+  <defs>
+    <linearGradient id="paint0_linear" x1="128" y1="256" x2="128" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B6FD4"/>
+      <stop offset="1" stop-color="#1A3A8F"/>
+    </linearGradient>
+  </defs>
 </svg>

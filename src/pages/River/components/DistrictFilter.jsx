@@ -18,7 +18,7 @@ export function DistrictFilter({ regions, selectedIds, onToggle, onSelectAll, on
   const isAll         = total > 0 && selectedCount === total
 
   return (
-    <div ref={ref} className="absolute bottom-3 right-3 z-50">
+    <div ref={ref} className="absolute bottom-[68px] right-3 z-50 md:bottom-3">
 
       {/* Dropdown — opens upward */}
       {open && (

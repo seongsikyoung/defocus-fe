@@ -45,11 +45,8 @@ export function LoginPage() {
 
         {/* Header */}
         <div className="flex w-full flex-col items-center gap-3">
-          <div className="flex size-[68px] items-center justify-center rounded-full bg-[#3b7df6]">
-            <span className="text-[28px] font-bold text-white">D</span>
-          </div>
+          <img src="/app-icon.svg" width={68} height={68} alt="강수 모니터링 로고" />
           <p className="text-[22px] font-bold text-[#1d4184] sm:text-[24px]">강수 모니터링 서비스</p>
-          <p className="text-sm text-[#75869b]">계정에 로그인하세요</p>
         </div>
 
         <div className="h-11 w-full shrink-0" />
@@ -124,20 +121,12 @@ export function LoginPage() {
         <div className="h-6 w-full shrink-0" />
 
         {/* Links */}
-        <div className="flex w-full items-center">
-          <Link to="#" className="text-[13px] text-[#3b7df6] hover:underline">
-            아이디 찾기
-          </Link>
-          <span className="mx-[5px] text-[13px] text-[#bfc8d2]">|</span>
-          <Link to="#" className="text-[13px] text-[#3b7df6] hover:underline">
-            비밀번호 찾기
-          </Link>
-          <div className="flex-1" />
+        <div className="flex w-full justify-end">
           <Link
             to={ROUTES.SIGNUP}
             className="text-[13px] font-medium text-[#3b7df6] hover:underline"
           >
-            회원가입 →
+            회원가입
           </Link>
         </div>
       </div>
