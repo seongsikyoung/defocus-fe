@@ -173,13 +173,15 @@ export function RiverPage() {
 
           {/* District filter (bottom-right — keeps Kakao logo bottom-left clear) */}
           {regionsReady && (
-            <DistrictFilter
-              regions={regionsData}
-              selectedIds={selectedRegionIds}
-              onToggle={toggleRegion}
-              onSelectAll={selectAllRegions}
-              onClearAll={clearAllRegions}
-            />
+            <div className={selected ? 'max-md:hidden' : ''}>
+              <DistrictFilter
+                regions={regionsData}
+                selectedIds={selectedRegionIds}
+                onToggle={toggleRegion}
+                onSelectAll={selectAllRegions}
+                onClearAll={clearAllRegions}
+              />
+            </div>
           )}
 
           {/* Filter toggles — hide on mobile when detail panel is open */}
